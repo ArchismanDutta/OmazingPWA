@@ -1,9 +1,11 @@
 // src/components/GoogleLoginButton.jsx
 import React, { useEffect, useRef } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const GoogleLoginButton = ({ onLogin }) => {
+  const { googleLogin } = useAuth();
   const googleButtonRef = useRef(null);
 
   useEffect(() => {
@@ -47,25 +49,21 @@ const GoogleLoginButton = ({ onLogin }) => {
     }
   }, []);
 
-  const handleCredentialResponse = (response) => {
+  const handleCredentialResponse = async (response) => {
     if (response.credential) {
-      fetch("http://localhost:5000/api/v1/social-auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tokenId: response.credential }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            console.log("Login successful:", data);
-            onLogin(data);
-          } else {
-            console.error("Login failed:", data.message);
-          }
-        })
-        .catch((err) => {
-          console.error("Login error:", err);
-        });
+      try {
+        console.log("Google login initiated...");
+        const data = await googleLogin(response.credential);
+        console.log("Google login successful:", data);
+        if (onLogin) {
+          onLogin(data);
+        }
+      } catch (error) {
+        console.error("Google login failed:", error);
+        if (onLogin) {
+          onLogin({ success: false, message: error.message });
+        }
+      }
     }
   };
 

@@ -31,11 +31,15 @@ exports.signup = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Email already registered" });
     }
-    existingUser = await User.findOne({ mobile });
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Mobile number already registered" });
+
+    // Only check mobile if provided
+    if (mobile) {
+      existingUser = await User.findOne({ mobile });
+      if (existingUser) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Mobile number already registered" });
+      }
     }
 
     // Create new user
@@ -50,7 +54,14 @@ exports.signup = async (req, res) => {
       .json({
         success: true,
         token,
-        user: { id: newUser._id, name, email, mobile, role: newUser.role },
+        user: {
+          id: newUser._id,
+          name,
+          email,
+          mobile,
+          role: newUser.role,
+          createdAt: newUser.createdAt
+        },
       });
   } catch (err) {
     console.error("Signup error:", err);
@@ -96,10 +107,57 @@ exports.login = async (req, res) => {
         email: user.email,
         mobile: user.mobile,
         role: user.role,
+        createdAt: user.createdAt,
       },
     });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// Verify token handler
+exports.verifyToken = async (req, res) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided"
+      });
+    }
+
+    // Verify JWT token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log(decoded);
+
+    // Find user by ID from token
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token - user not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    console.error("Token verification error:", err);
+    res.status(401).json({
+      success: false,
+      message: "Invalid token"
+    });
   }
 };
