@@ -23,6 +23,14 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <span className="hidden sm:block text-sm text-gray-700">Welcome, {user?.name}</span>
+              {user?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Admin
+                </Link>
+              )}
               <Link
                 to="/profile"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"

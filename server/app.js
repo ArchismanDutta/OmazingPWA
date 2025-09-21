@@ -32,6 +32,9 @@ app.use(logger);
 app.use(corsConfig);
 app.use(security);
 
+// Serve uploaded files
+app.use('/uploads', express.static('uploads'));
+
 // Public route example
 app.get("/", (req, res) => {
   res.json({
@@ -67,6 +70,9 @@ app.use("/api/v1/user", require("./routes/user"));
 
 // Content routes
 app.use("/api/v1/content", require("./routes/content"));
+
+// Admin routes
+app.use("/api/v1/admin", require("./routes/admin"));
 
 // Sample protected route accessible by authenticated users only
 app.get("/api/v1/user/dashboard", authMiddleware, async (req, res) => {
