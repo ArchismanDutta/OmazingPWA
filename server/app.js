@@ -33,7 +33,8 @@ app.use(corsConfig);
 app.use(security);
 
 // Serve uploaded files
-app.use('/uploads', express.static('uploads'));
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Public route example
 app.get("/", (req, res) => {
@@ -70,6 +71,9 @@ app.use("/api/v1/user", require("./routes/user"));
 
 // Content routes
 app.use("/api/v1/content", require("./routes/content"));
+
+// Course routes
+app.use("/api/v1/courses", require("./routes/courses"));
 
 // Admin routes
 app.use("/api/v1/admin", require("./routes/admin"));

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { userAPI } from '../api/user';
+import TopNavBar from '../components/navigation/TopNavBar';
+import Breadcrumbs from '../components/navigation/Breadcrumbs';
 
 const Profile = () => {
   const { user, updateProfile } = useAuth();
@@ -151,7 +153,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Header */}
-      <div className="bg-white border-b px-4 py-4">
+      <div className="bg-white border-b px-4 sm:px-6 py-4">
         <div className="flex justify-between items-center">
           <Link to="/dashboard" className="text-blue-600 hover:text-blue-700">
             ← Back

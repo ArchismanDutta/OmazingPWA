@@ -73,11 +73,14 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const data = await authAPI.verifyToken();
+      console.log('User verified:', data.user);
+      console.log('User favorites:', data.user?.activities?.favoriteContent);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: { user: data.user, token: state.token }
       });
     } catch (error) {
+      console.error('Token verification failed:', error);
       dispatch({ type: 'LOGOUT' });
     }
   };
@@ -159,6 +162,21 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
+  const refreshUser = async () => {
+    try {
+      const data = await authAPI.verifyToken();
+      dispatch({ type: 'UPDATE_USER', payload: data.user });
+      return data.user;
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      throw error;
+    }
+  };
+
+  const updateUser = (userData) => {
+    dispatch({ type: 'UPDATE_USER', payload: userData });
+  };
+
   const value = {
     ...state,
     login,
@@ -168,6 +186,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     clearError,
+    refreshUser,
+    updateUser,
   };
 
   return (

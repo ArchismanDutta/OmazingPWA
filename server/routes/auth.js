@@ -47,6 +47,29 @@ router.post(
 );
 
 // Verify token route
-// router.get("/verify", authController.verifyToken);
+router.get("/verify", require("../middlewares/authMiddleware"), async (req, res) => {
+  try {
+    const User = require("../models/User");
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      user: user
+    });
+  } catch (error) {
+    console.error("Verify token error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error verifying token"
+    });
+  }
+});
 
 module.exports = router;

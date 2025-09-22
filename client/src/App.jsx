@@ -6,13 +6,24 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import ContentLibrary from './pages/ContentLibrary';
+import ContentDetail from './pages/ContentDetail';
+import Favorites from './pages/Favorites';
+import RecentlyPlayed from './pages/RecentlyPlayed';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminContent from './pages/admin/AdminContent';
+import MediaPlayerDebug from './components/media/MediaPlayerDebug';
+import { getDefaultRouteForUser } from './utils/navigation';
 
 function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  const getDefaultRoute = () => {
+    if (!isAuthenticated || !user) return "/login";
+    return getDefaultRouteForUser(user);
+  };
 
   if (isLoading) {
     return (
@@ -27,19 +38,19 @@ function AppContent() {
       <Route
         path="/"
         element={
-          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+          isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Navigate to="/login" replace />
         }
       />
       <Route
         path="/login"
         element={
-          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+          isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Login />
         }
       />
       <Route
         path="/register"
         element={
-          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />
+          isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Register />
         }
       />
       <Route
@@ -57,6 +68,22 @@ function AppContent() {
             <Profile />
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/content"
+        element={<ContentLibrary />}
+      />
+      <Route
+        path="/content/:id"
+        element={<ContentDetail />}
+      />
+      <Route
+        path="/favorites"
+        element={<Favorites />}
+      />
+      <Route
+        path="/recently-played"
+        element={<RecentlyPlayed />}
       />
       <Route
         path="/admin"
@@ -89,6 +116,10 @@ function AppContent() {
             <AdminContent />
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/debug/media"
+        element={<MediaPlayerDebug />}
       />
       <Route
         path="/unauthorized"

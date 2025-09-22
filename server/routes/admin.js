@@ -5,6 +5,10 @@ const Content = require("../models/Content");
 const authMiddleware = require("../middlewares/authMiddleware");
 const roleMiddleware = require("../middlewares/roleMiddleware");
 const { upload, deleteFromS3, deleteFromLocal, isS3Enabled } = require("../services/uploadService");
+const { body } = require('express-validator');
+
+// Import course controllers
+const adminCourseController = require('../controllers/adminCourseController');
 
 router.get("/dashboard", authMiddleware, roleMiddleware(["admin"]), async (req, res) => {
   try {
@@ -272,6 +276,94 @@ router.get("/export/users", authMiddleware, roleMiddleware(["admin"]), async (re
     });
   }
 });
+
+// Course Management Routes
+router.get("/courses", authMiddleware, roleMiddleware(["admin"]), adminCourseController.getAllCoursesAdmin);
+router.get("/courses/:id", authMiddleware, roleMiddleware(["admin"]), adminCourseController.getCourseByIdAdmin);
+
+router.post(
+  "/courses",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  [
+    body('title').notEmpty().withMessage('Title is required'),
+    body('description').notEmpty().withMessage('Description is required'),
+    body('instructor.name').notEmpty().withMessage('Instructor name is required'),
+    body('thumbnail').notEmpty().withMessage('Thumbnail is required'),
+    body('category').notEmpty().withMessage('Category is required'),
+    body('level').isIn(['beginner', 'intermediate', 'advanced']).withMessage('Invalid level')
+  ],
+  adminCourseController.createCourse
+);
+
+router.put(
+  "/courses/:id",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  adminCourseController.updateCourse
+);
+
+router.delete("/courses/:id", authMiddleware, roleMiddleware(["admin"]), adminCourseController.deleteCourse);
+
+// Course status management
+router.put("/courses/:id/publish", authMiddleware, roleMiddleware(["admin"]), adminCourseController.publishCourse);
+router.put("/courses/:id/archive", authMiddleware, roleMiddleware(["admin"]), adminCourseController.archiveCourse);
+
+// Module management
+router.post(
+  "/courses/:id/modules",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  [
+    body('title').notEmpty().withMessage('Module title is required'),
+    body('order').optional().isNumeric()
+  ],
+  adminCourseController.addModule
+);
+
+router.put(
+  "/courses/:courseId/modules/:moduleId",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  adminCourseController.updateModule
+);
+
+router.delete(
+  "/courses/:courseId/modules/:moduleId",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  adminCourseController.deleteModule
+);
+
+// Lesson management
+router.post(
+  "/courses/:courseId/modules/:moduleId/lessons",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  [
+    body('title').notEmpty().withMessage('Lesson title is required'),
+    body('content.type').isIn(['video', 'audio', 'text', 'quiz']).withMessage('Invalid content type'),
+    body('order').optional().isNumeric()
+  ],
+  adminCourseController.addLesson
+);
+
+router.put(
+  "/courses/:courseId/modules/:moduleId/lessons/:lessonId",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  adminCourseController.updateLesson
+);
+
+router.delete(
+  "/courses/:courseId/modules/:moduleId/lessons/:lessonId",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  adminCourseController.deleteLesson
+);
+
+// Course analytics
+router.get("/courses/:id/analytics", authMiddleware, roleMiddleware(["admin"]), adminCourseController.getCourseAnalytics);
 
 // Note: Content management routes are handled by /api/v1/content routes
 // This keeps admin routes focused on user management and dashboard analytics

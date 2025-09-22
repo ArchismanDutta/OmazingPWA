@@ -51,7 +51,7 @@ exports.uploadContent = async (req, res) => {
         mimeType: file.mimetype,
         storage: {
           type: isS3Enabled() ? 's3' : 'local',
-          location: file.key || file.path,
+          location: isS3Enabled() ? file.key : `${require('../services/uploadService').getFileFolder(file.mimetype)}/${file.filename}`,
           url: file.location || null
         },
         isPublic: isPublic === 'true',
@@ -120,6 +120,16 @@ exports.getAllContent = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
+    // Generate appropriate URLs for each content item
+    content.forEach(item => {
+      if (item.storage.type === 's3') {
+        item.storage.signedUrl = getSignedUrl(item.storage.location);
+      } else if (item.storage.type === 'local') {
+        const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+        item.storage.url = `${baseUrl}/uploads/${item.storage.location}`;
+      }
+    });
+
     const totalCount = await Content.countDocuments(query);
 
     res.json({
@@ -156,9 +166,14 @@ exports.getContentById = async (req, res) => {
       });
     }
 
-    // Generate signed URL for S3 files if needed
-    if (content.storage.type === 's3' && !content.isPublic) {
+    // Generate appropriate URL for content access
+    if (content.storage.type === 's3') {
+      // For S3 files, always generate signed URL for security
       content.storage.signedUrl = getSignedUrl(content.storage.location);
+    } else if (content.storage.type === 'local') {
+      // For local files, create a public URL
+      const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+      content.storage.url = `${baseUrl}/uploads/${content.storage.location}`;
     }
 
     // Increment view count
@@ -319,10 +334,23 @@ exports.getPublicContent = async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const content = await Content.find(query)
-      .select('-storage.location') // Don't expose file locations
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
+
+    // Generate appropriate URLs for each content item
+    content.forEach(item => {
+      if (item.storage.type === 's3') {
+        item.storage.signedUrl = getSignedUrl(item.storage.location);
+        // Don't expose the raw S3 location
+        item.storage.location = undefined;
+      } else if (item.storage.type === 'local') {
+        const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+        item.storage.url = `${baseUrl}/uploads/${item.storage.location}`;
+        // Don't expose the raw file path
+        item.storage.location = undefined;
+      }
+    });
 
     const totalCount = await Content.countDocuments(query);
 

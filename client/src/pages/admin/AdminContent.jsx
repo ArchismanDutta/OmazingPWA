@@ -182,21 +182,23 @@ const AdminContent = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Content Management</h1>
-            <p className="text-gray-600">Manage meditation content, videos, and audio files</p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Content Management
+            </h1>
+            <p className="text-gray-400 mt-1">Manage meditation content, videos, and audio files</p>
           </div>
           <div className="flex space-x-3">
             <button
               onClick={() => setShowUploadModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
             >
-              Upload Content
+              📁 Upload Content
             </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
+          <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                 <input
@@ -204,95 +206,100 @@ const AdminContent = () => {
                   placeholder="Search content..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                 />
                 <select
                   value={filter.type}
                   onChange={(e) => setFilter({ ...filter, type: e.target.value })}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                 >
-                  <option value="all">All Types</option>
+                  <option value="all" className="bg-slate-800 text-white">All Types</option>
                   {contentTypes.map(type => (
-                    <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+                    <option key={type} value={type} className="bg-slate-800 text-white">
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </option>
                   ))}
                 </select>
                 <select
                   value={filter.category}
                   onChange={(e) => setFilter({ ...filter, category: e.target.value })}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                 >
-                  <option value="all">All Categories</option>
+                  <option value="all" className="bg-slate-800 text-white">All Categories</option>
                   {categories.map(category => (
-                    <option key={category} value={category}>
+                    <option key={category} value={category} className="bg-slate-800 text-white">
                       {category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </option>
                   ))}
                 </select>
               </div>
-              <div className="text-sm text-gray-600">
-                Total: {filteredContent.length} items
+              <div className="text-sm text-gray-400 bg-slate-700/30 px-3 py-2 rounded-lg">
+                📊 Total: {filteredContent.length} items
               </div>
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-700/50">
+              <thead className="bg-slate-800/30">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Content
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Type & Category
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     File Info
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Access
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Stats
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-slate-800/20 divide-y divide-gray-700/50">
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="px-6 py-4 text-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <td colSpan="7" className="px-6 py-8 text-center">
+                      <div className="flex items-center justify-center space-x-3">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
+                        <span className="text-gray-400">Loading content...</span>
+                      </div>
                     </td>
                   </tr>
                 ) : (
                   filteredContent.map((item) => (
-                    <tr key={item._id} className="hover:bg-gray-50">
+                    <tr key={item._id} className="hover:bg-slate-700/30 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center">
-                          <div className="text-2xl mr-3">{getTypeIcon(item.type)}</div>
+                          <div className="text-2xl mr-3 p-2 bg-slate-700/30 rounded-lg">{getTypeIcon(item.type)}</div>
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{item.title}</div>
-                            <div className="text-sm text-gray-500 max-w-xs truncate">{item.description}</div>
-                            <div className="text-xs text-gray-400 mt-1">
+                            <div className="text-sm font-medium text-white">{item.title}</div>
+                            <div className="text-sm text-gray-400 max-w-xs truncate">{item.description}</div>
+                            <div className="text-xs text-gray-500 mt-1">
                               {item.tags.map(tag => `#${tag}`).join(' ')}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 capitalize">{item.type}</div>
-                        <div className="text-sm text-gray-500 capitalize">
+                        <div className="text-sm text-white font-medium capitalize">{item.type}</div>
+                        <div className="text-sm text-gray-400 capitalize">
                           {item.category.replace('_', ' ')}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{formatFileSize(item.fileSize)}</div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-white font-medium">{formatFileSize(item.fileSize)}</div>
+                        <div className="text-sm text-gray-400">
                           {item.duration ? formatDuration(item.duration) : 'N/A'}
                         </div>
                         {item.dimensions && (
@@ -356,24 +363,24 @@ const AdminContent = () => {
             </table>
           </div>
 
-          <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+          <div className="px-6 py-4 border-t border-gray-700/50 bg-slate-800/30 flex items-center justify-between">
+            <div className="text-sm text-gray-400">
               Showing {filteredContent.length} of {content.length} content items
             </div>
             <div className="flex space-x-2">
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+                className="px-4 py-2 border border-gray-600 rounded-lg text-sm text-gray-300 hover:bg-slate-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                Previous
+                ← Previous
               </button>
               <button
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
+                className="px-4 py-2 border border-gray-600 rounded-lg text-sm text-gray-300 hover:bg-slate-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                Next
+                Next →
               </button>
             </div>
           </div>

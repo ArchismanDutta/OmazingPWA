@@ -38,16 +38,21 @@ const AdminDashboard = () => {
   };
 
   const StatCard = ({ title, value, icon, change, changeType }) => (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl p-6 hover:bg-slate-800/70 transition-all duration-200 group">
       <div className="flex items-center">
-        <div className="text-2xl mr-4">{icon}</div>
+        <div className="text-3xl mr-4 p-3 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-xl border border-red-500/30 group-hover:scale-105 transition-transform">
+          {icon}
+        </div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value.toLocaleString()}</p>
+          <p className="text-sm font-medium text-gray-400 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-white mb-2">{value.toLocaleString()}</p>
           {change && (
-            <p className={`text-sm ${changeType === 'increase' ? 'text-green-600' : 'text-red-600'}`}>
-              {changeType === 'increase' ? '↗' : '↘'} {change}% from last month
-            </p>
+            <div className="flex items-center space-x-1">
+              <div className={`w-2 h-2 rounded-full ${changeType === 'increase' ? 'bg-green-400' : 'bg-red-400'}`}></div>
+              <p className={`text-sm font-medium ${changeType === 'increase' ? 'text-green-400' : 'text-red-400'}`}>
+                {changeType === 'increase' ? '↗' : '↘'} {change}% from last month
+              </p>
+            </div>
           )}
         </div>
       </div>
@@ -57,22 +62,24 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600">Welcome back, {user?.name}</p>
+            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Dashboard
+            </h1>
+            <p className="text-gray-400">Welcome back, {user?.name}</p>
           </div>
-          <div className="flex space-x-3">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <button className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-sm">
               Export Report
             </button>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <button className="px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-slate-800 hover:text-white transition-colors text-sm">
               Refresh Data
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <StatCard
             title="Total Users"
             value={stats.totalUsers}
@@ -103,80 +110,115 @@ const AdminDashboard = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
+            <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
+              <h3 className="text-lg font-semibold text-white flex items-center">
+                <span className="mr-2">⚡</span>
+                Recent Activity
+              </h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
                 {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-center space-x-3">
+                  <div key={activity.id} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-slate-700/50 transition-colors">
                     <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <div className="w-10 h-10 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-full flex items-center justify-center border border-red-500/30">
+                        <div className="w-3 h-3 bg-red-400 rounded-full animate-pulse"></div>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                      <p className="text-sm text-gray-500">{activity.user}</p>
+                      <p className="text-sm font-medium text-white">{activity.action}</p>
+                      <p className="text-sm text-gray-400">{activity.user}</p>
                     </div>
                     <div className="flex-shrink-0">
-                      <p className="text-xs text-gray-500">{activity.time}</p>
+                      <p className="text-xs text-gray-500 bg-slate-700/50 px-2 py-1 rounded-full">{activity.time}</p>
                     </div>
                   </div>
                 ))}
               </div>
+              <div className="mt-4 pt-4 border-t border-gray-700/50">
+                <Link
+                  to="/admin/analytics"
+                  className="text-sm text-red-400 hover:text-red-300 font-medium flex items-center group"
+                >
+                  View all activity
+                  <svg className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Link>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+          <div className="bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
+            <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
+              <h3 className="text-lg font-semibold text-white flex items-center">
+                <span className="mr-2">⚡</span>
+                Quick Actions
+              </h3>
             </div>
             <div className="p-6">
-              <div className="grid grid-cols-2 gap-4">
-                <Link to="/admin/users" className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-center">
-                  <div className="text-2xl mb-2">👥</div>
-                  <div className="text-sm font-medium text-gray-900">Manage Users</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Link
+                  to="/admin/users"
+                  className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center"
+                >
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">👥</div>
+                  <div className="text-sm font-medium text-gray-300 group-hover:text-white">Manage Users</div>
                 </Link>
-                <Link to="/admin/content" className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-center">
-                  <div className="text-2xl mb-2">📝</div>
-                  <div className="text-sm font-medium text-gray-900">Manage Content</div>
+                <Link
+                  to="/admin/content"
+                  className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center"
+                >
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">📝</div>
+                  <div className="text-sm font-medium text-gray-300 group-hover:text-white">Manage Content</div>
                 </Link>
-                <Link to="/admin/analytics" className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-center">
-                  <div className="text-2xl mb-2">📊</div>
-                  <div className="text-sm font-medium text-gray-900">View Analytics</div>
+                <Link
+                  to="/admin/analytics"
+                  className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center"
+                >
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">📊</div>
+                  <div className="text-sm font-medium text-gray-300 group-hover:text-white">View Analytics</div>
                 </Link>
-                <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-center">
-                  <div className="text-2xl mb-2">⚙️</div>
-                  <div className="text-sm font-medium text-gray-900">Settings</div>
+                <button className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center">
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">⚙️</div>
+                  <div className="text-sm font-medium text-gray-300 group-hover:text-white">Settings</div>
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">System Status</h3>
+        <div className="bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
+          <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
+            <h3 className="text-lg font-semibold text-white flex items-center">
+              <span className="mr-2">🔧</span>
+              System Status
+            </h3>
           </div>
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-2xl mb-2">🟢</div>
-                <div className="text-sm font-medium text-gray-900">Server Status</div>
-                <div className="text-xs text-gray-500">Online</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+              <div className="text-center p-4 bg-slate-700/30 rounded-xl border border-green-500/30">
+                <div className="text-3xl mb-3">
+                  <div className="w-6 h-6 bg-green-400 rounded-full mx-auto animate-pulse"></div>
+                </div>
+                <div className="text-sm font-medium text-white mb-1">Server Status</div>
+                <div className="text-xs text-green-400 font-medium">Online</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl mb-2">🟢</div>
-                <div className="text-sm font-medium text-gray-900">Database</div>
-                <div className="text-xs text-gray-500">Connected</div>
+              <div className="text-center p-4 bg-slate-700/30 rounded-xl border border-green-500/30">
+                <div className="text-3xl mb-3">
+                  <div className="w-6 h-6 bg-green-400 rounded-full mx-auto animate-pulse"></div>
+                </div>
+                <div className="text-sm font-medium text-white mb-1">Database</div>
+                <div className="text-xs text-green-400 font-medium">Connected</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl mb-2">🟡</div>
-                <div className="text-sm font-medium text-gray-900">CDN</div>
-                <div className="text-xs text-gray-500">Slow Response</div>
+              <div className="text-center p-4 bg-slate-700/30 rounded-xl border border-yellow-500/30">
+                <div className="text-3xl mb-3">
+                  <div className="w-6 h-6 bg-yellow-400 rounded-full mx-auto animate-pulse"></div>
+                </div>
+                <div className="text-sm font-medium text-white mb-1">CDN</div>
+                <div className="text-xs text-yellow-400 font-medium">Slow Response</div>
               </div>
             </div>
           </div>
