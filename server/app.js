@@ -32,6 +32,9 @@ app.use(logger);
 app.use(corsConfig);
 app.use(security);
 
+// Serve uploaded files
+app.use('/uploads', express.static('uploads'));
+
 // Public route example
 app.get("/", (req, res) => {
   res.json({
@@ -56,16 +59,39 @@ app.get("/api/v1/health", (req, res) => {
 app.use("/api/v1/auth", require("./routes/auth"));
 app.use("/api/v1/social-auth", require("./routes/socialAuth"));
 
+// Debug middleware for user routes
+app.use("/api/v1/user", (req, res, next) => {
+  console.log(`User route hit: ${req.method} ${req.path}`);
+  next();
+});
+
+// User routes
+app.use("/api/v1/user", require("./routes/user"));
+
 // Content routes
 app.use("/api/v1/content", require("./routes/content"));
 
+// Admin routes
+app.use("/api/v1/admin", require("./routes/admin"));
+
 // Sample protected route accessible by authenticated users only
-app.get("/api/v1/user/dashboard", authMiddleware, (req, res) => {
-  res.json({
-    success: true,
-    message: "Welcome to user dashboard",
-    user: req.user,
-  });
+app.get("/api/v1/user/dashboard", authMiddleware, async (req, res) => {
+  try {
+    const User = require("./models/User");
+    const user = await User.findById(req.user.id).select("-password");
+
+    res.json({
+      success: true,
+      message: "Welcome to user dashboard",
+      user: user,
+    });
+  } catch (error) {
+    res.json({
+      success: true,
+      message: "Welcome to user dashboard",
+      user: req.user,
+    });
+  }
 });
 
 // Sample protected admin route accessible only by admins
