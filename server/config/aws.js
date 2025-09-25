@@ -27,8 +27,28 @@ const isS3Enabled = () => {
   return process.env.MEDIA_STORAGE_TYPE === 's3';
 };
 
+// Get CloudFront domain based on environment
+const getCloudFrontDomain = () => {
+  const env = process.env.NODE_ENV || 'development';
+  return env === 'production'
+    ? process.env.CLOUDFRONT_DOMAIN_PROD
+    : process.env.CLOUDFRONT_DOMAIN_DEV;
+};
+
+// Generate CloudFront URL
+const getCloudFrontUrl = (fileKey) => {
+  const domain = getCloudFrontDomain();
+  if (!domain) {
+    console.warn('CloudFront domain not configured, falling back to S3 direct access');
+    return null;
+  }
+  return `https://${domain}/${fileKey}`;
+};
+
 module.exports = {
   s3,
   getBucketName,
-  isS3Enabled
+  isS3Enabled,
+  getCloudFrontDomain,
+  getCloudFrontUrl
 };

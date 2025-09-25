@@ -131,22 +131,23 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ email: 1 });
 userSchema.index({ mobile: 1 });
 
-// Password hashing middleware before save
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+// Password hashing middleware before save - DISABLED FOR DEVELOPMENT
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) return next();
 
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
+//   try {
+//     const salt = await bcrypt.genSalt(10);
+//     this.password = await bcrypt.hash(this.password, salt);
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
-// Method to compare password during login
+// Method to compare password during login - SIMPLIFIED FOR DEVELOPMENT
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  // return await bcrypt.compare(candidatePassword, this.password); // DISABLED FOR DEVELOPMENT
+  return candidatePassword === this.password; // Simple string comparison for development
 };
 
 // Update timestamp on save

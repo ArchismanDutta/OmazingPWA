@@ -1,6 +1,6 @@
 const Content = require('../models/Content');
 const { validationResult } = require('express-validator');
-const { deleteFromS3, deleteFromLocal, getSignedUrl, isS3Enabled } = require('../services/uploadService');
+const { deleteFromS3, deleteFromLocal, getSignedUrl, getContentUrl, isS3Enabled } = require('../services/uploadService');
 
 // Upload content
 exports.uploadContent = async (req, res) => {
@@ -123,7 +123,14 @@ exports.getAllContent = async (req, res) => {
     // Generate appropriate URLs for each content item
     content.forEach(item => {
       if (item.storage.type === 's3') {
-        item.storage.signedUrl = getSignedUrl(item.storage.location);
+        // Use CloudFront for public content, signed URLs for private content
+        const useSignedUrl = !item.isPublic || item.isPremium;
+        item.storage.url = getContentUrl(item.storage.location, useSignedUrl);
+
+        // Keep signed URL for backward compatibility if needed
+        if (useSignedUrl) {
+          item.storage.signedUrl = item.storage.url;
+        }
       } else if (item.storage.type === 'local') {
         const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
         item.storage.url = `${baseUrl}/uploads/${item.storage.location}`;
@@ -168,8 +175,14 @@ exports.getContentById = async (req, res) => {
 
     // Generate appropriate URL for content access
     if (content.storage.type === 's3') {
-      // For S3 files, always generate signed URL for security
-      content.storage.signedUrl = getSignedUrl(content.storage.location);
+      // Use CloudFront for public content, signed URLs for private content
+      const useSignedUrl = !content.isPublic || content.isPremium;
+      content.storage.url = getContentUrl(content.storage.location, useSignedUrl);
+
+      // Keep signed URL for backward compatibility if needed
+      if (useSignedUrl) {
+        content.storage.signedUrl = content.storage.url;
+      }
     } else if (content.storage.type === 'local') {
       // For local files, create a public URL
       const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
@@ -341,7 +354,8 @@ exports.getPublicContent = async (req, res) => {
     // Generate appropriate URLs for each content item
     content.forEach(item => {
       if (item.storage.type === 's3') {
-        item.storage.signedUrl = getSignedUrl(item.storage.location);
+        // For public content, use CloudFront URLs (better performance and caching)
+        item.storage.url = getContentUrl(item.storage.location, false);
         // Don't expose the raw S3 location
         item.storage.location = undefined;
       } else if (item.storage.type === 'local') {

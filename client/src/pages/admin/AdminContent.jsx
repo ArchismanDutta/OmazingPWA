@@ -180,17 +180,17 @@ const AdminContent = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               Content Management
             </h1>
-            <p className="text-gray-400 mt-1">Manage meditation content, videos, and audio files</p>
+            <p className="text-gray-400 mt-1 text-sm sm:text-base">Manage meditation content, videos, and audio files</p>
           </div>
           <div className="flex space-x-3">
             <button
               onClick={() => setShowUploadModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-sm sm:text-base"
             >
               📁 Upload Content
             </button>
@@ -198,48 +198,146 @@ const AdminContent = () => {
         </div>
 
         <div className="bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
-          <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+          <div className="p-4 sm:p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
+            <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+              <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
                 <input
                   type="text"
                   placeholder="Search content..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full sm:w-auto px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                 />
-                <select
-                  value={filter.type}
-                  onChange={(e) => setFilter({ ...filter, type: e.target.value })}
-                  className="px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                >
-                  <option value="all" className="bg-slate-800 text-white">All Types</option>
-                  {contentTypes.map(type => (
-                    <option key={type} value={type} className="bg-slate-800 text-white">
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={filter.category}
-                  onChange={(e) => setFilter({ ...filter, category: e.target.value })}
-                  className="px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                >
-                  <option value="all" className="bg-slate-800 text-white">All Categories</option>
-                  {categories.map(category => (
-                    <option key={category} value={category} className="bg-slate-800 text-white">
-                      {category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex space-x-2 sm:space-x-4">
+                  <select
+                    value={filter.type}
+                    onChange={(e) => setFilter({ ...filter, type: e.target.value })}
+                    className="flex-1 sm:flex-none px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  >
+                    <option value="all" className="bg-slate-800 text-white">All Types</option>
+                    {contentTypes.map(type => (
+                      <option key={type} value={type} className="bg-slate-800 text-white">
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={filter.category}
+                    onChange={(e) => setFilter({ ...filter, category: e.target.value })}
+                    className="flex-1 sm:flex-none px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  >
+                    <option value="all" className="bg-slate-800 text-white">All Categories</option>
+                    {categories.map(category => (
+                      <option key={category} value={category} className="bg-slate-800 text-white">
+                        {category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="text-sm text-gray-400 bg-slate-700/30 px-3 py-2 rounded-lg">
+              <div className="text-sm text-gray-400 bg-slate-700/30 px-3 py-2 rounded-lg text-center sm:text-left">
                 📊 Total: {filteredContent.length} items
               </div>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Mobile View */}
+          <div className="md:hidden">
+            <div className="p-4 space-y-4">
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
+                  <span className="text-gray-400 ml-3">Loading content...</span>
+                </div>
+              ) : (
+                filteredContent.map((item) => (
+                  <div key={item._id} className="bg-slate-700/30 rounded-xl p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl p-2 bg-slate-700/30 rounded-lg">{getTypeIcon(item.type)}</div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-white">{item.title}</div>
+                          <div className="text-xs text-gray-400 mt-1 line-clamp-2">{item.description}</div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <button
+                          onClick={() => {
+                            setSelectedContent(item);
+                            setShowEditModal(true);
+                          }}
+                          className="text-blue-400 hover:text-blue-300 text-xs font-medium"
+                        >
+                          Edit
+                        </button>
+                        <a
+                          href={item.storage.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-400 hover:text-green-300 text-xs font-medium"
+                        >
+                          Preview
+                        </a>
+                        <button
+                          onClick={() => handleDeleteContent(item._id)}
+                          className="text-red-400 hover:text-red-300 text-xs font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-400">Type:</span>
+                        <div className="text-white font-medium capitalize">{item.type}</div>
+                        <div className="text-xs text-gray-400 capitalize">{item.category.replace('_', ' ')}</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Size:</span>
+                        <div className="text-white font-medium">{formatFileSize(item.fileSize)}</div>
+                        <div className="text-xs text-gray-400">{item.duration ? formatDuration(item.duration) : 'N/A'}</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Access:</span>
+                        <div className="flex flex-col space-y-1">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full w-fit ${
+                            item.isPublic ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {item.isPublic ? 'Public' : 'Private'}
+                          </span>
+                          {item.isPremium && (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 w-fit">
+                              Premium
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Stats:</span>
+                        <div className="text-xs text-gray-400">
+                          <div>👁️ {item.viewCount}</div>
+                          <div>⬇️ {item.downloadCount}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-600/50">
+                      <div className="text-xs text-gray-400">
+                        Tags: {item.tags.map(tag => `#${tag}`).join(' ')}
+                      </div>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(item.status)}`}>
+                        {item.status}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Desktop View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-700/50">
               <thead className="bg-slate-800/30">
                 <tr>
@@ -490,7 +588,7 @@ const ContentUploadModal = ({ onClose, onUpload }) => {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={onClose}></div>
-        <div className="relative bg-white rounded-lg max-w-2xl w-full p-6">
+        <div className="relative bg-white rounded-lg max-w-2xl w-full mx-4 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold">Upload New Content</h3>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
@@ -545,7 +643,7 @@ const ContentUploadModal = ({ onClose, onUpload }) => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                 <input
@@ -580,7 +678,7 @@ const ContentUploadModal = ({ onClose, onUpload }) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <select
@@ -694,7 +792,7 @@ const ContentEditModal = ({ content, onClose, onSave }) => {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={onClose}></div>
-        <div className="relative bg-white rounded-lg max-w-md w-full p-6">
+        <div className="relative bg-white rounded-lg max-w-md w-full mx-4 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Edit Content</h3>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
