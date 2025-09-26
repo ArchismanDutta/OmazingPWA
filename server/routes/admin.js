@@ -365,6 +365,139 @@ router.delete(
 // Course analytics
 router.get("/courses/:id/analytics", authMiddleware, roleMiddleware(["admin"]), adminCourseController.getCourseAnalytics);
 
+// File upload routes for course media
+router.post(
+  "/upload/thumbnail",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  upload.single('thumbnail'),
+  (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No file uploaded'
+        });
+      }
+
+      const fileUrl = isS3Enabled()
+        ? req.file.location
+        : `/uploads/${req.file.filename}`;
+
+      res.json({
+        success: true,
+        message: 'Thumbnail uploaded successfully',
+        data: {
+          url: fileUrl,
+          filename: req.file.filename || req.file.key,
+          mimetype: req.file.mimetype,
+          size: req.file.size
+        }
+      });
+    } catch (error) {
+      console.error('Thumbnail upload error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error uploading thumbnail',
+        error: error.message
+      });
+    }
+  }
+);
+
+router.post(
+  "/upload/lesson-media",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  upload.single('media'),
+  (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No file uploaded'
+        });
+      }
+
+      const fileUrl = isS3Enabled()
+        ? req.file.location
+        : `/uploads/${req.file.filename}`;
+
+      const mediaType = req.file.mimetype.startsWith('video/') ? 'video' :
+                       req.file.mimetype.startsWith('audio/') ? 'audio' : 'other';
+
+      res.json({
+        success: true,
+        message: 'Media uploaded successfully',
+        data: {
+          url: fileUrl,
+          filename: req.file.filename || req.file.key,
+          mimetype: req.file.mimetype,
+          size: req.file.size,
+          type: mediaType
+        }
+      });
+    } catch (error) {
+      console.error('Media upload error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error uploading media',
+        error: error.message
+      });
+    }
+  }
+);
+
+router.post(
+  "/upload/resources",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  upload.array('resources', 5),
+  (req, res) => {
+    try {
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'No files uploaded'
+        });
+      }
+
+      const uploadedFiles = req.files.map(file => {
+        const fileUrl = isS3Enabled()
+          ? file.location
+          : `/uploads/${file.filename}`;
+
+        let fileType = 'other';
+        if (file.mimetype.includes('pdf')) fileType = 'pdf';
+        else if (file.mimetype.startsWith('audio/')) fileType = 'audio';
+        else if (file.mimetype.startsWith('image/')) fileType = 'image';
+        else if (file.mimetype.includes('text')) fileType = 'link';
+
+        return {
+          url: fileUrl,
+          filename: file.filename || file.key,
+          mimetype: file.mimetype,
+          size: file.size,
+          type: fileType
+        };
+      });
+
+      res.json({
+        success: true,
+        message: 'Resources uploaded successfully',
+        data: uploadedFiles
+      });
+    } catch (error) {
+      console.error('Resources upload error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error uploading resources',
+        error: error.message
+      });
+    }
+  }
+);
+
 // Note: Content management routes are handled by /api/v1/content routes
 // This keeps admin routes focused on user management and dashboard analytics
 

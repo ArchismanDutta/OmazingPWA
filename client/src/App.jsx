@@ -12,6 +12,9 @@ import Favorites from './pages/Favorites';
 import RecentlyPlayed from './pages/RecentlyPlayed';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminCourses from './pages/admin/AdminCourses';
+import AdminCourseNew from './pages/admin/AdminCourseNew';
+import AdminCourseEdit from './pages/admin/AdminCourseEdit';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminContent from './pages/admin/AdminContent';
 import MediaPlayerDebug from './components/media/MediaPlayerDebug';
@@ -98,6 +101,30 @@ function AppContent() {
         element={
           <ProtectedRoute adminOnly>
             <AdminUsers />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/courses"
+        element={
+          <ProtectedRoute adminOnly>
+            <AdminCourses />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/courses/new"
+        element={
+          <ProtectedRoute adminOnly>
+            <AdminCourseNew />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/courses/:id"
+        element={
+          <ProtectedRoute adminOnly>
+            <AdminCourseEdit />
           </ProtectedRoute>
         }
       />
