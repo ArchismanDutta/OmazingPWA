@@ -140,27 +140,108 @@ const AdminUsers = () => {
         </div>
 
         <div className="bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
-          <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
-            <div className="flex items-center justify-between">
+          <div className="p-4 sm:p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
+            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
               <div>
                 <h3 className="text-lg font-semibold text-white flex items-center">
                   <span className="mr-2">👥</span>
                   All Users ({totalUsers})
                 </h3>
               </div>
-              <div className="flex space-x-4">
+              <div className="flex w-full sm:w-auto">
                 <input
                   type="text"
                   placeholder="Search users..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full sm:w-64 px-4 py-3 bg-slate-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                 />
               </div>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Mobile View */}
+          <div className="md:hidden">
+            <div className="p-4 space-y-4">
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-400"></div>
+                  <span className="text-gray-400 ml-3">Loading users...</span>
+                </div>
+              ) : (
+                users.map((user) => (
+                  <div key={user._id} className="bg-slate-700/30 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white font-medium shadow-lg">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-white">{user.name}</div>
+                          <div className="text-xs text-gray-400">{user.email}</div>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleUserClick(user)}
+                          className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user._id)}
+                          className="text-red-400 hover:text-red-300 text-sm font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-400">Role:</span>
+                        <div className="mt-1">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadgeColor(user.role)}`}>
+                            {user.role}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Subscription:</span>
+                        <div className="mt-1">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSubscriptionBadgeColor(user.subscription.type)}`}>
+                            {user.subscription.type}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Sessions:</span>
+                        <div className="text-white font-medium">{user.mindfulness.totalSessions}</div>
+                        <div className="text-xs text-gray-400">{Math.floor(user.mindfulness.totalMinutes / 60)}h {user.mindfulness.totalMinutes % 60}m</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Status:</span>
+                        <div className="mt-1">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.isEmailVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {user.isEmailVerified ? 'Verified' : 'Unverified'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-600/50">
+                      <span className="text-xs text-gray-400">Joined: {new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Desktop View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-700/50">
               <thead className="bg-slate-800/30">
                 <tr>
@@ -314,7 +395,7 @@ const UserEditModal = ({ user, onSave, onClose }) => {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={onClose}></div>
-        <div className="relative bg-white rounded-lg max-w-md w-full p-6">
+        <div className="relative bg-white rounded-lg max-w-md w-full mx-4 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Edit User</h3>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">

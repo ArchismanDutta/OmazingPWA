@@ -11,6 +11,7 @@ const AdminLayout = ({ children }) => {
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: '📊' },
     { name: 'Users', href: '/admin/users', icon: '👥' },
+    { name: 'Courses', href: '/admin/courses', icon: '🎓' },
     { name: 'Content', href: '/admin/content', icon: '📝' },
     { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
     { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
@@ -22,9 +23,9 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800">
-      <div className="flex">
-        <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900/95 backdrop-blur-xl border-r border-red-500/20 shadow-2xl transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 overflow-hidden">
+      <div className="flex h-full">
+        <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900/95 backdrop-blur-xl border-r border-red-500/20 shadow-2xl transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0`}>
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between h-16 px-4 border-b border-red-500/30">
               <div className="flex items-center space-x-3">
@@ -105,7 +106,7 @@ const AdminLayout = ({ children }) => {
           </div>
         </div>
 
-        <div className="flex-1 lg:ml-0">
+        <div className="flex-1 lg:ml-64 flex flex-col h-full">
           <div className="lg:hidden">
             <div className="flex items-center justify-between h-16 px-4 bg-slate-900/95 border-b border-red-500/20 backdrop-blur-xl">
               <button
@@ -123,7 +124,7 @@ const AdminLayout = ({ children }) => {
             </div>
           </div>
 
-          <main className="p-3 sm:p-6 min-h-screen">
+          <main className="flex-1 overflow-y-auto p-3 sm:p-6">
             {children}
           </main>
         </div>

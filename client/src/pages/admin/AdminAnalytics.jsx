@@ -307,10 +307,10 @@ const AdminAnalytics = () => {
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-gray-200">
+              <div className="mt-6 pt-4 border-t border-gray-700/50">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Total Revenue</span>
-                  <span className="text-lg font-bold text-green-600">
+                  <span className="text-sm font-medium text-gray-300">Total Revenue</span>
+                  <span className="text-lg font-bold text-green-400">
                     ${analyticsData.revenueData.totalRevenue?.toLocaleString()}
                   </span>
                 </div>
@@ -319,26 +319,29 @@ const AdminAnalytics = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Export Options</h3>
+        <div className="bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden">
+          <div className="p-6 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
+            <h3 className="text-lg font-semibold text-white flex items-center">
+              <span className="mr-2">📤</span>
+              Export Options
+            </h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-center">
-                <div className="text-2xl mb-2">📊</div>
-                <div className="text-sm font-medium text-gray-900">User Analytics</div>
-                <div className="text-xs text-gray-500">CSV format</div>
+              <button className="p-4 border-2 border-dashed border-gray-600/50 bg-slate-700/30 rounded-xl hover:border-red-500/50 hover:bg-slate-700/50 transition-all duration-200 text-center group">
+                <div className="text-2xl mb-2 group-hover:scale-105 transition-transform">📊</div>
+                <div className="text-sm font-medium text-white">User Analytics</div>
+                <div className="text-xs text-gray-400">CSV format</div>
               </button>
-              <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-center">
-                <div className="text-2xl mb-2">📈</div>
-                <div className="text-sm font-medium text-gray-900">Session Report</div>
-                <div className="text-xs text-gray-500">PDF format</div>
+              <button className="p-4 border-2 border-dashed border-gray-600/50 bg-slate-700/30 rounded-xl hover:border-red-500/50 hover:bg-slate-700/50 transition-all duration-200 text-center group">
+                <div className="text-2xl mb-2 group-hover:scale-105 transition-transform">📈</div>
+                <div className="text-sm font-medium text-white">Session Report</div>
+                <div className="text-xs text-gray-400">PDF format</div>
               </button>
-              <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors text-center">
-                <div className="text-2xl mb-2">💰</div>
-                <div className="text-sm font-medium text-gray-900">Revenue Report</div>
-                <div className="text-xs text-gray-500">Excel format</div>
+              <button className="p-4 border-2 border-dashed border-gray-600/50 bg-slate-700/30 rounded-xl hover:border-red-500/50 hover:bg-slate-700/50 transition-all duration-200 text-center group">
+                <div className="text-2xl mb-2 group-hover:scale-105 transition-transform">💰</div>
+                <div className="text-sm font-medium text-white">Revenue Report</div>
+                <div className="text-xs text-gray-400">Excel format</div>
               </button>
             </div>
           </div>

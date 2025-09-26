@@ -2,7 +2,7 @@ const multer = require('multer');
 const multerS3 = require('multer-s3');
 const path = require('path');
 const fs = require('fs');
-const { s3, getBucketName, isS3Enabled } = require('../config/aws');
+const { s3, getBucketName, isS3Enabled, getCloudFrontUrl } = require('../config/aws');
 
 // File type validation
 const fileFilter = (req, file, cb) => {
@@ -120,19 +120,33 @@ const deleteFromLocal = async (filePath) => {
   }
 };
 
-// Generate signed URL for private S3 files
-const getSignedUrl = (fileKey, expiresIn = 3600) => {
+// Generate CloudFront URL for public files or signed URL for private files
+const getContentUrl = (fileKey, useSignedUrl = false, expiresIn = 3600) => {
   if (!isS3Enabled()) {
     return null; // Local files are served directly
   }
 
+  // For public content, use CloudFront URL for better performance
+  if (!useSignedUrl) {
+    const cloudFrontUrl = getCloudFrontUrl(fileKey);
+    if (cloudFrontUrl) {
+      return cloudFrontUrl;
+    }
+  }
+
+  // Fallback to signed S3 URL for private content or if CloudFront not configured
   const params = {
     Bucket: getBucketName(),
     Key: fileKey,
     Expires: expiresIn // 1 hour default
   };
- 
+
   return s3.getSignedUrl('getObject', params);
+};
+
+// Legacy function for backward compatibility
+const getSignedUrl = (fileKey, expiresIn = 3600) => {
+  return getContentUrl(fileKey, true, expiresIn);
 };
 
 module.exports = {
@@ -140,6 +154,7 @@ module.exports = {
   deleteFromS3,
   deleteFromLocal,
   getSignedUrl,
+  getContentUrl,
   isS3Enabled,
   getBucketName,
   getFileFolder

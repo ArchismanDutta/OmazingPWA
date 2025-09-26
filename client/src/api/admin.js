@@ -221,5 +221,71 @@ export const adminAPI = {
     }
 
     return response.json();
+  },
+
+  // File Upload APIs
+  async uploadThumbnail(file) {
+    const formData = new FormData();
+    formData.append('thumbnail', file);
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/upload/thumbnail`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload thumbnail');
+    }
+
+    return response.json();
+  },
+
+  async uploadLessonMedia(file) {
+    const formData = new FormData();
+    formData.append('media', file);
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/upload/lesson-media`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload lesson media');
+    }
+
+    return response.json();
+  },
+
+  async uploadResources(files) {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('resources', file);
+    });
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/admin/upload/resources`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to upload resources');
+    }
+
+    return response.json();
   }
 };
