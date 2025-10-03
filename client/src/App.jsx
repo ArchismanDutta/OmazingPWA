@@ -10,6 +10,8 @@ import ContentLibrary from './pages/ContentLibrary';
 import ContentDetail from './pages/ContentDetail';
 import Favorites from './pages/Favorites';
 import RecentlyPlayed from './pages/RecentlyPlayed';
+import Courses from './pages/Courses';
+import CourseDetail from './pages/CourseDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCourses from './pages/admin/AdminCourses';
@@ -87,6 +89,14 @@ function AppContent() {
       <Route
         path="/recently-played"
         element={<RecentlyPlayed />}
+      />
+      <Route
+        path="/courses"
+        element={<Courses />}
+      />
+      <Route
+        path="/courses/:id"
+        element={<CourseDetail />}
       />
       <Route
         path="/admin"
