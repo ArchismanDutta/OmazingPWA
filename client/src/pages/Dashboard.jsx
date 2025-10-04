@@ -60,10 +60,10 @@ const Dashboard = () => {
                 Structured learning paths for personal growth
               </p>
               <Link
-                to="/content?type=video&category=guided_meditation"
+                to="/courses"
                 className="btn-secondary w-full text-center"
               >
-                View Courses
+                Browse Courses
               </Link>
             </div>
 

@@ -74,6 +74,11 @@ export const coursesAPI = {
     return response.data;
   },
 
+  markLessonComplete: async (courseId, lessonId) => {
+    const response = await api.post(`/courses/${courseId}/lessons/${lessonId}/complete`);
+    return response.data;
+  },
+
   submitQuizAttempt: async (courseId, moduleId, lessonId, answers) => {
     const response = await api.post(
       `/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/quiz`,

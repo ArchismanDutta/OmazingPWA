@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { coursesAPI, courseHelpers } from '../api/courses';
 import TopNavBar from '../components/navigation/TopNavBar';
 import Breadcrumbs from '../components/navigation/Breadcrumbs';
+import LessonPlayer from '../components/course/LessonPlayer';
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -13,6 +14,7 @@ const CourseDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [enrolling, setEnrolling] = useState(false);
+  const [currentLesson, setCurrentLesson] = useState(null);
 
   useEffect(() => {
     fetchCourse();
@@ -43,6 +45,25 @@ const CourseDetail = () => {
       alert('Failed to enroll in course. Please try again.');
     } finally {
       setEnrolling(false);
+    }
+  };
+
+  const handlePlayLesson = (lesson) => {
+    setCurrentLesson(lesson);
+  };
+
+  const handleCloseLessonPlayer = () => {
+    setCurrentLesson(null);
+  };
+
+  const handleLessonComplete = async (lessonId) => {
+    try {
+      // Update lesson completion status on the server
+      await coursesAPI.markLessonComplete(id, lessonId);
+      // Refresh course data to get updated progress
+      await fetchCourse();
+    } catch (err) {
+      console.error('Error marking lesson as complete:', err);
     }
   };
 
@@ -102,13 +123,17 @@ const CourseDetail = () => {
       {/* Access Status */}
       <div className="flex-shrink-0">
         {course.hasAccess || lesson.isPreview ? (
-          <button className="text-green-400 hover:text-green-300 transition-colors">
+          <button
+            onClick={() => handlePlayLesson(lesson)}
+            className="text-green-400 hover:text-green-300 transition-colors hover:scale-110 transform duration-200"
+            title="Play lesson"
+          >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/>
             </svg>
           </button>
         ) : (
-          <svg className="w-5 h-5 text-white/30" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-5 h-5 text-white/30" fill="currentColor" viewBox="0 0 20 20" title="Locked - Enroll to access">
             <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
           </svg>
         )}
@@ -379,6 +404,16 @@ const CourseDetail = () => {
           </div>
         )}
       </div>
+
+      {/* Lesson Player Modal */}
+      {currentLesson && (
+        <LessonPlayer
+          lesson={currentLesson}
+          course={course}
+          onClose={handleCloseLessonPlayer}
+          onComplete={handleLessonComplete}
+        />
+      )}
     </div>
   );
 };

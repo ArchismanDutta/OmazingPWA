@@ -189,10 +189,18 @@ const AudioPlayer = ({
         onLoadStart={() => console.log('Audio load started:', src)}
         onLoadedData={() => console.log('Audio data loaded:', src)}
         onCanPlay={() => console.log('Audio can play:', src)}
-        onError={(e) => console.error('Audio element error:', e.target.error)}
+        onError={(e) => {
+          console.error('Audio element error:', e.target.error);
+          setIsLoading(false);
+          if (e.target.error) {
+            console.error('Error code:', e.target.error.code);
+            console.error('Error message:', e.target.error.message);
+          }
+        }}
         preload="metadata"
         loop={loop}
         crossOrigin="anonymous"
+        playsInline
       />
 
       {/* Debug Info (remove in production) */}

@@ -2,6 +2,7 @@ const Course = require('../models/Course');
 const CourseEnrollment = require('../models/CourseEnrollment');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
+const { getContentUrl } = require('../services/uploadService');
 
 // Get all courses (public)
 const getAllCourses = async (req, res) => {
@@ -75,6 +76,19 @@ const getAllCourses = async (req, res) => {
 
     const total = await totalQuery.countDocuments();
 
+    // Process CloudFront URLs for course thumbnails and media
+    courses.forEach(course => {
+      // Process thumbnail URL
+      if (course.thumbnail && course.thumbnail.includes('amazonaws.com')) {
+        // Extract S3 key from URL
+        const urlParts = course.thumbnail.split('.amazonaws.com/');
+        if (urlParts.length > 1) {
+          const s3Key = urlParts[1];
+          course.thumbnail = getContentUrl(s3Key, false); // Public content, no signed URL
+        }
+      }
+    });
+
     res.json({
       success: true,
       data: courses,
@@ -136,6 +150,15 @@ const getCourseById = async (req, res) => {
       } : null
     };
 
+    // Process thumbnail URL for course
+    if (responseData.thumbnail && responseData.thumbnail.includes('amazonaws.com')) {
+      const urlParts = responseData.thumbnail.split('.amazonaws.com/');
+      if (urlParts.length > 1) {
+        const s3Key = urlParts[1];
+        responseData.thumbnail = getContentUrl(s3Key, false);
+      }
+    }
+
     // If user has access, include course structure
     if (hasAccess) {
       responseData.modules = course.modules.map(module => ({
@@ -143,26 +166,54 @@ const getCourseById = async (req, res) => {
         title: module.title,
         description: module.description,
         order: module.order,
-        lessons: module.lessons.map(lesson => ({
-          _id: lesson._id,
-          title: lesson.title,
-          description: lesson.description,
-          duration: lesson.duration,
-          order: lesson.order,
-          isPreview: lesson.isPreview,
-          content: {
-            type: lesson.content.type,
-            // Only include URL if user has access or it's a preview
-            ...(lesson.isPreview || hasAccess ? { url: lesson.content.url } : {}),
-            ...(lesson.content.type === 'text' ? { text: lesson.content.text } : {}),
-            ...(lesson.content.type === 'quiz' ? { quiz: lesson.content.quiz } : {})
-          },
-          resources: lesson.resources
-        }))
+        lessons: module.lessons.map(lesson => {
+          const lessonData = {
+            _id: lesson._id,
+            title: lesson.title,
+            description: lesson.description,
+            duration: lesson.duration,
+            order: lesson.order,
+            isPreview: lesson.isPreview,
+            content: {
+              type: lesson.content.type,
+              ...(lesson.content.type === 'text' ? { text: lesson.content.text } : {}),
+              ...(lesson.content.type === 'quiz' ? { quiz: lesson.content.quiz } : {})
+            },
+            resources: lesson.resources
+          };
+
+          // Process media URLs for lessons
+          if ((lesson.isPreview || hasAccess) && lesson.content.url) {
+            let processedUrl = lesson.content.url;
+
+            // Process S3 URLs to CloudFront
+            if (processedUrl.includes('amazonaws.com')) {
+              const urlParts = processedUrl.split('.amazonaws.com/');
+              if (urlParts.length > 1) {
+                const s3Key = urlParts[1];
+                processedUrl = getContentUrl(s3Key, false);
+              }
+            }
+
+            lessonData.content.url = processedUrl;
+          }
+
+          return lessonData;
+        })
       }));
     } else {
-      // Only show preview lessons
-      responseData.previewLessons = course.getPreviewLessons();
+      // Only show preview lessons with processed URLs
+      const previewLessons = course.getPreviewLessons();
+      responseData.previewLessons = previewLessons.map(lesson => {
+        if (lesson.content && lesson.content.url && lesson.content.url.includes('amazonaws.com')) {
+          const urlParts = lesson.content.url.split('.amazonaws.com/');
+          if (urlParts.length > 1) {
+            const s3Key = urlParts[1];
+            lesson.content.url = getContentUrl(s3Key, false);
+          }
+        }
+        return lesson;
+      });
     }
 
     res.json({

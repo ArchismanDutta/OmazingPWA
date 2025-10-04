@@ -170,7 +170,20 @@ const VideoPlayer = ({
         }}
         onMouseMove={handleMouseMove}
         onClick={togglePlay}
+        onError={(e) => {
+          console.error('Video error:', e.target.error);
+          setIsLoading(false);
+        }}
+        onLoadStart={() => setIsLoading(true)}
+        onCanPlay={() => setIsLoading(false)}
+        onProgress={(e) => {
+          if (onProgress && e.target.currentTime && e.target.duration) {
+            onProgress(e.target.currentTime, e.target.duration);
+          }
+        }}
         preload="metadata"
+        crossOrigin="anonymous"
+        playsInline
       />
 
       {/* Loading Spinner */}

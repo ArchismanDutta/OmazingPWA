@@ -38,10 +38,12 @@ const getCloudFrontDomain = () => {
 // Generate CloudFront URL
 const getCloudFrontUrl = (fileKey) => {
   const domain = getCloudFrontDomain();
+
   if (!domain) {
     console.warn('CloudFront domain not configured, falling back to S3 direct access');
     return null;
   }
+
   return `https://${domain}/${fileKey}`;
 };
 
