@@ -430,6 +430,9 @@ const addLesson = async (req, res) => {
     const { courseId, moduleId } = req.params;
     const lessonData = req.body;
 
+    console.log('Adding lesson to course:', courseId, 'module:', moduleId);
+    console.log('Lesson data:', JSON.stringify(lessonData, null, 2));
+
     const course = await Course.findById(courseId);
 
     if (!course) {
@@ -442,6 +445,7 @@ const addLesson = async (req, res) => {
     const module = course.modules.id(moduleId);
 
     if (!module) {
+      console.log('Module not found. Available modules:', course.modules.map(m => m._id.toString()));
       return res.status(404).json({
         success: false,
         message: 'Module not found'
@@ -453,20 +457,31 @@ const addLesson = async (req, res) => {
       order: lessonData.order || module.lessons.length + 1
     };
 
+    console.log('New lesson to be added:', newLesson);
     module.lessons.push(newLesson);
+
     await course.save();
+    console.log('Lesson added successfully');
+
+    // Get the newly added lesson (it will have an _id after save)
+    const addedLesson = module.lessons[module.lessons.length - 1];
 
     res.status(201).json({
       success: true,
       message: 'Lesson added successfully',
-      data: newLesson
+      data: addedLesson
     });
   } catch (error) {
     console.error('Error adding lesson:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Error adding lesson',
-      error: error.message
+      error: error.message,
+      details: error.errors ? Object.keys(error.errors).map(key => ({
+        field: key,
+        message: error.errors[key].message
+      })) : undefined
     });
   }
 };

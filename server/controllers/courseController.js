@@ -270,6 +270,7 @@ const enrollInCourse = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
+    const { paymentId } = req.body;
 
     const course = await Course.findOne({ _id: id, status: 'published' });
 
@@ -290,12 +291,38 @@ const enrollInCourse = async (req, res) => {
       });
     }
 
-    // Check if payment is required
-    if (course.pricing.type === 'paid' && !req.body.paymentId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Payment required for this course'
+    // Check if payment is required for paid courses
+    if (course.pricing.type === 'paid') {
+      if (!paymentId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Payment required for this course',
+          requiresPayment: true,
+          course: {
+            id: course._id,
+            title: course.title,
+            amount: course.pricing.discountPrice || course.pricing.amount,
+            currency: course.pricing.currency
+          }
+        });
+      }
+
+      // Verify payment exists and is completed
+      const Payment = require('../models/Payment');
+      const payment = await Payment.findOne({
+        _id: paymentId,
+        user: userId,
+        type: 'course',
+        'relatedItem.itemId': id,
+        status: 'completed'
       });
+
+      if (!payment) {
+        return res.status(400).json({
+          success: false,
+          message: 'Valid payment not found. Please complete payment first.'
+        });
+      }
     }
 
     // Create enrollment with module and lesson structure
@@ -310,11 +337,11 @@ const enrollInCourse = async (req, res) => {
       userId,
       courseId: id,
       modulesProgress,
-      paymentInfo: req.body.paymentId ? {
-        transactionId: req.body.paymentId,
-        amount: course.pricing.amount,
+      paymentInfo: paymentId ? {
+        transactionId: paymentId,
+        amount: course.pricing.discountPrice || course.pricing.amount,
         currency: course.pricing.currency,
-        paymentMethod: req.body.paymentMethod,
+        paymentMethod: 'razorpay',
         paidAt: new Date()
       } : undefined
     });

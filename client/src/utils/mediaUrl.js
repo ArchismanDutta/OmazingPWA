@@ -12,11 +12,18 @@ export const processMediaUrl = (url) => {
     return url;
   }
 
+  // If it's a relative path starting with /uploads, use API base
+  if (url.startsWith('/uploads')) {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
+    const baseUrl = apiBase.replace('/api/v1', '');
+    return `${baseUrl}${url}`;
+  }
+
   // If it's a relative path, construct full URL using the API base
   const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
   const baseUrl = apiBase.replace('/api/v1', '');
 
-  return `${baseUrl}/${url}`;
+  return `${baseUrl}/${url.replace(/^\/+/, '')}`;
 };
 
 /**
@@ -24,10 +31,24 @@ export const processMediaUrl = (url) => {
  * Tries CloudFront first, falls back to S3 direct access
  */
 export const getOptimizedMediaUrl = (contentItem) => {
-  if (!contentItem?.storage?.url) return null;
+  if (!contentItem) return null;
 
-  // Process the URL to make sure it's accessible
-  return processMediaUrl(contentItem.storage.url);
+  // If contentItem is a string (direct URL), use it
+  if (typeof contentItem === 'string') {
+    return processMediaUrl(contentItem);
+  }
+
+  // If it has storage.url, use that
+  if (contentItem?.storage?.url) {
+    return processMediaUrl(contentItem.storage.url);
+  }
+
+  // If it has url directly, use that
+  if (contentItem?.url) {
+    return processMediaUrl(contentItem.url);
+  }
+
+  return null;
 };
 
 /**

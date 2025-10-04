@@ -5,6 +5,7 @@ import { coursesAPI, courseHelpers } from '../api/courses';
 import TopNavBar from '../components/navigation/TopNavBar';
 import Breadcrumbs from '../components/navigation/Breadcrumbs';
 import LessonPlayer from '../components/course/LessonPlayer';
+import CourseEnrollButton from '../components/course/CourseEnrollButton';
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -321,33 +322,29 @@ const CourseDetail = () => {
               </div>
 
               {/* Pricing and Enrollment */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="text-3xl font-bold text-green-400">
                   {courseHelpers.getPricingDisplay(course.pricing)}
                 </div>
 
-                {user ? (
-                  course.hasAccess ? (
-                    <button className="btn-primary bg-green-500 hover:bg-green-600">
-                      Start Learning
-                    </button>
+                <div className="w-full sm:w-auto">
+                  {user ? (
+                    course.hasAccess ? (
+                      <button className="btn-primary bg-green-500 hover:bg-green-600 w-full">
+                        Start Learning
+                      </button>
+                    ) : (
+                      <CourseEnrollButton course={course} onEnrollSuccess={fetchCourse} />
+                    )
                   ) : (
                     <button
-                      onClick={handleEnroll}
-                      disabled={enrolling}
-                      className="btn-primary"
+                      onClick={() => navigate('/login')}
+                      className="btn-primary w-full"
                     >
-                      {enrolling ? 'Enrolling...' : 'Enroll Now'}
+                      Login to Enroll
                     </button>
-                  )
-                ) : (
-                  <button
-                    onClick={() => navigate('/login')}
-                    className="btn-primary"
-                  >
-                    Login to Enroll
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>

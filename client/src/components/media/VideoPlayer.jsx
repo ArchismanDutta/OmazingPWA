@@ -148,6 +148,8 @@ const VideoPlayer = ({
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  const [error, setError] = useState(null);
+
   return (
     <div className={`relative bg-black rounded-lg overflow-hidden ${className}`}>
       <video
@@ -171,10 +173,35 @@ const VideoPlayer = ({
         onMouseMove={handleMouseMove}
         onClick={togglePlay}
         onError={(e) => {
-          console.error('Video error:', e.target.error);
+          const mediaError = e.target.error;
+          let errorMessage = 'Failed to load video';
+
+          if (mediaError) {
+            switch (mediaError.code) {
+              case mediaError.MEDIA_ERR_ABORTED:
+                errorMessage = 'Video loading was aborted';
+                break;
+              case mediaError.MEDIA_ERR_NETWORK:
+                errorMessage = 'Network error while loading video';
+                break;
+              case mediaError.MEDIA_ERR_DECODE:
+                errorMessage = 'Video format not supported or corrupted';
+                break;
+              case mediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                errorMessage = 'Video source not supported';
+                break;
+            }
+          }
+
+          console.error('Video error:', errorMessage, mediaError);
+          console.error('Video URL:', src);
+          setError(errorMessage);
           setIsLoading(false);
         }}
-        onLoadStart={() => setIsLoading(true)}
+        onLoadStart={() => {
+          setIsLoading(true);
+          setError(null);
+        }}
         onCanPlay={() => setIsLoading(false)}
         onProgress={(e) => {
           if (onProgress && e.target.currentTime && e.target.duration) {
@@ -182,12 +209,25 @@ const VideoPlayer = ({
           }
         }}
         preload="metadata"
-        crossOrigin="anonymous"
         playsInline
       />
 
+      {/* Error Message */}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-90">
+          <div className="text-center p-4">
+            <div className="text-red-400 text-4xl mb-3">⚠️</div>
+            <p className="text-white font-medium mb-2">{error}</p>
+            <p className="text-gray-400 text-sm">Please check the video URL or try again later</p>
+            {import.meta.env.DEV && (
+              <p className="text-xs text-gray-500 mt-2 break-all">URL: {src}</p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Loading Spinner */}
-      {isLoading && (
+      {isLoading && !error && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="animate-spin rounded-full h-12 w-12 border-2 border-white border-t-transparent"></div>
         </div>
