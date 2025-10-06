@@ -6,19 +6,17 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
-import ContentLibrary from './pages/ContentLibrary';
-import ContentDetail from './pages/ContentDetail';
 import Favorites from './pages/Favorites';
 import RecentlyPlayed from './pages/RecentlyPlayed';
 import Courses from './pages/Courses';
 import CourseDetail from './pages/CourseDetail';
+import LessonView from './pages/LessonView';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCourses from './pages/admin/AdminCourses';
 import AdminCourseNew from './pages/admin/AdminCourseNew';
 import AdminCourseEdit from './pages/admin/AdminCourseEdit';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
-import AdminContent from './pages/admin/AdminContent';
 import MediaPlayerDebug from './components/media/MediaPlayerDebug';
 import { getDefaultRouteForUser } from './utils/navigation';
 
@@ -75,14 +73,6 @@ function AppContent() {
         }
       />
       <Route
-        path="/content"
-        element={<ContentLibrary />}
-      />
-      <Route
-        path="/content/:id"
-        element={<ContentDetail />}
-      />
-      <Route
         path="/favorites"
         element={<Favorites />}
       />
@@ -97,6 +87,10 @@ function AppContent() {
       <Route
         path="/courses/:id"
         element={<CourseDetail />}
+      />
+      <Route
+        path="/courses/:courseId/lessons/:lessonId"
+        element={<LessonView />}
       />
       <Route
         path="/admin"
@@ -143,14 +137,6 @@ function AppContent() {
         element={
           <ProtectedRoute adminOnly>
             <AdminAnalytics />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/content"
-        element={
-          <ProtectedRoute adminOnly>
-            <AdminContent />
           </ProtectedRoute>
         }
       />
