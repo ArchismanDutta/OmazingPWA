@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { coursesAPI, courseHelpers } from '../api/courses';
 import TopNavBar from '../components/navigation/TopNavBar';
 import Breadcrumbs from '../components/navigation/Breadcrumbs';
-import LessonPlayer from '../components/course/LessonPlayer';
 import CourseEnrollButton from '../components/course/CourseEnrollButton';
 
 const CourseDetail = () => {
@@ -15,7 +14,6 @@ const CourseDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [enrolling, setEnrolling] = useState(false);
-  const [currentLesson, setCurrentLesson] = useState(null);
 
   useEffect(() => {
     fetchCourse();
@@ -50,22 +48,9 @@ const CourseDetail = () => {
   };
 
   const handlePlayLesson = (lesson) => {
-    setCurrentLesson(lesson);
-  };
-
-  const handleCloseLessonPlayer = () => {
-    setCurrentLesson(null);
-  };
-
-  const handleLessonComplete = async (lessonId) => {
-    try {
-      // Update lesson completion status on the server
-      await coursesAPI.markLessonComplete(id, lessonId);
-      // Refresh course data to get updated progress
-      await fetchCourse();
-    } catch (err) {
-      console.error('Error marking lesson as complete:', err);
-    }
+    navigate(`/courses/${id}/lessons/${lesson._id}`, {
+      state: { lesson, course }
+    });
   };
 
   const LessonItem = ({ lesson, moduleIndex, lessonIndex }) => (
@@ -401,16 +386,6 @@ const CourseDetail = () => {
           </div>
         )}
       </div>
-
-      {/* Lesson Player Modal */}
-      {currentLesson && (
-        <LessonPlayer
-          lesson={currentLesson}
-          course={course}
-          onClose={handleCloseLessonPlayer}
-          onComplete={handleLessonComplete}
-        />
-      )}
     </div>
   );
 };
