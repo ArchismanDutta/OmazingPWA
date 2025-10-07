@@ -365,6 +365,9 @@ router.delete(
 // Course analytics
 router.get("/courses/:id/analytics", authMiddleware, roleMiddleware(["admin"]), adminCourseController.getCourseAnalytics);
 
+// Course enrollments
+router.get("/courses/:id/enrollments", authMiddleware, roleMiddleware(["admin"]), adminCourseController.getCourseEnrollments);
+
 // File upload routes for course media
 router.post(
   "/upload/thumbnail",

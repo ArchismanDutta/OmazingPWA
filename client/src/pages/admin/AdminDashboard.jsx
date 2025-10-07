@@ -137,17 +137,6 @@ const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 pt-4 border-t border-gray-700/50">
-                <Link
-                  to="/admin/analytics"
-                  className="text-sm text-red-400 hover:text-red-300 font-medium flex items-center group"
-                >
-                  View all activity
-                  <svg className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </Link>
-              </div>
             </div>
           </div>
 
@@ -168,18 +157,11 @@ const AdminDashboard = () => {
                   <div className="text-sm font-medium text-gray-300 group-hover:text-white">Manage Users</div>
                 </Link>
                 <Link
-                  to="/admin/content"
+                  to="/admin/courses"
                   className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center"
                 >
-                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">📝</div>
-                  <div className="text-sm font-medium text-gray-300 group-hover:text-white">Manage Content</div>
-                </Link>
-                <Link
-                  to="/admin/analytics"
-                  className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center"
-                >
-                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">📊</div>
-                  <div className="text-sm font-medium text-gray-300 group-hover:text-white">View Analytics</div>
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🎓</div>
+                  <div className="text-sm font-medium text-gray-300 group-hover:text-white">Manage Courses</div>
                 </Link>
                 <button className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center">
                   <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">⚙️</div>

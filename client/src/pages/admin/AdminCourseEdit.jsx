@@ -12,6 +12,8 @@ const AdminCourseEdit = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('details'); // details, modules, analytics
+  const [editingDetails, setEditingDetails] = useState(false);
+  const [detailsForm, setDetailsForm] = useState({});
 
   // Module/Lesson management
   const [editingModule, setEditingModule] = useState(null);
@@ -38,15 +40,16 @@ const AdminCourseEdit = () => {
   });
 
   const [uploadingMedia, setUploadingMedia] = useState(false);
-  const [analytics, setAnalytics] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
+  const [loadingEnrollments, setLoadingEnrollments] = useState(false);
 
   useEffect(() => {
     fetchCourse();
   }, [id]);
 
   useEffect(() => {
-    if (activeTab === 'analytics') {
-      fetchAnalytics();
+    if (activeTab === 'enrollments') {
+      fetchEnrollments();
     }
   }, [activeTab, id]);
 
@@ -55,6 +58,20 @@ const AdminCourseEdit = () => {
       setLoading(true);
       const response = await coursesAPI.admin.getCourseById(id);
       setCourse(response.data);
+      setDetailsForm({
+        title: response.data.title,
+        description: response.data.description,
+        category: response.data.category,
+        level: response.data.level,
+        thumbnail: response.data.thumbnail,
+        pricingType: response.data.pricing?.type || 'free',
+        price: response.data.pricing?.price || 0,
+        whatYouWillLearn: response.data.whatYouWillLearn?.join('\n') || '',
+        requirements: response.data.requirements?.join('\n') || '',
+        tags: response.data.tags?.join(', ') || '',
+        instructorName: response.data.instructor?.name || '',
+        instructorBio: response.data.instructor?.bio || ''
+      });
     } catch (error) {
       console.error('Failed to fetch course:', error);
       navigate('/admin/courses');
@@ -63,12 +80,16 @@ const AdminCourseEdit = () => {
     }
   };
 
-  const fetchAnalytics = async () => {
+  const fetchEnrollments = async () => {
     try {
-      const response = await coursesAPI.admin.getCourseAnalytics(id);
-      setAnalytics(response.data);
+      setLoadingEnrollments(true);
+      const response = await coursesAPI.admin.getCourseEnrollments(id);
+      setEnrollments(response.data || []);
     } catch (error) {
-      console.error('Failed to fetch analytics:', error);
+      console.error('Failed to fetch enrollments:', error);
+      setEnrollments([]);
+    } finally {
+      setLoadingEnrollments(false);
     }
   };
 
@@ -77,6 +98,41 @@ const AdminCourseEdit = () => {
       setSaving(true);
       await coursesAPI.admin.updateCourse(id, updates);
       setCourse(prev => ({ ...prev, ...updates }));
+    } catch (error) {
+      console.error('Failed to update course:', error);
+      alert('Failed to update course: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveCourseDetails = async () => {
+    try {
+      setSaving(true);
+      const updates = {
+        title: detailsForm.title,
+        description: detailsForm.description,
+        category: detailsForm.category,
+        level: detailsForm.level,
+        thumbnail: detailsForm.thumbnail,
+        pricing: {
+          type: detailsForm.pricingType,
+          price: detailsForm.pricingType === 'paid' ? parseFloat(detailsForm.price) : 0,
+          subscriptionRequired: detailsForm.pricingType === 'premium'
+        },
+        whatYouWillLearn: detailsForm.whatYouWillLearn.split('\n').filter(item => item.trim()),
+        requirements: detailsForm.requirements.split('\n').filter(item => item.trim()),
+        tags: detailsForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        instructor: {
+          name: detailsForm.instructorName,
+          bio: detailsForm.instructorBio
+        }
+      };
+
+      await coursesAPI.admin.updateCourse(id, updates);
+      await fetchCourse();
+      setEditingDetails(false);
+      alert('Course updated successfully!');
     } catch (error) {
       console.error('Failed to update course:', error);
       alert('Failed to update course: ' + error.message);
@@ -305,7 +361,7 @@ const AdminCourseEdit = () => {
 
       {/* Tabs */}
       <div className="flex space-x-1 mb-6">
-        {['details', 'modules', 'analytics'].map((tab) => (
+        {['details', 'modules', 'enrollments'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -323,92 +379,273 @@ const AdminCourseEdit = () => {
       {/* Tab Content */}
       {activeTab === 'details' && (
         <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-red-500/20">
-          <h2 className="text-xl font-semibold text-white mb-4">Course Details</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <img
-                src={course.thumbnail}
-                alt={course.title}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-
-              <div className="space-y-3">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-300">Instructor</h3>
-                  <p className="text-white">{course.instructor?.name}</p>
-                  {course.instructor?.bio && (
-                    <p className="text-gray-400 text-sm mt-1">{course.instructor.bio}</p>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-300">Category & Level</h3>
-                  <div className="flex gap-2 mt-1">
-                    <span className="px-2 py-1 bg-slate-700 text-white text-xs rounded">
-                      {courseHelpers.formatCategory(course.category)}
-                    </span>
-                    <span className={`px-2 py-1 text-xs rounded ${courseHelpers.getLevelColor(course.level)} bg-slate-700`}>
-                      {course.level}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-300">Pricing</h3>
-                  <p className="text-white">{courseHelpers.getPricingDisplay(course.pricing)}</p>
-                </div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-white">Course Details</h2>
+            {!editingDetails ? (
+              <button
+                onClick={() => setEditingDetails(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Edit Details
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveCourseDetails}
+                  disabled={saving}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingDetails(false);
+                    fetchCourse();
+                  }}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
               </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-300">Description</h3>
-                <p className="text-white text-sm leading-relaxed">{course.description}</p>
-              </div>
-
-              {course.whatYouWillLearn?.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-300 mb-2">What You Will Learn</h3>
-                  <ul className="space-y-1">
-                    {course.whatYouWillLearn.map((item, index) => (
-                      <li key={index} className="text-white text-sm flex items-start">
-                        <span className="text-green-400 mr-2">✓</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {course.requirements?.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-300 mb-2">Requirements</h3>
-                  <ul className="space-y-1">
-                    {course.requirements.map((req, index) => (
-                      <li key={index} className="text-white text-sm flex items-start">
-                        <span className="text-red-400 mr-2">•</span>
-                        {req}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {course.tags?.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-300 mb-2">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {course.tags.map((tag, index) => (
-                      <span key={index} className="px-2 py-1 bg-slate-700 text-white text-xs rounded">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
+
+          {!editingDetails ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <img
+                  src={course.thumbnail}
+                  alt={course.title}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300">Instructor</h3>
+                    <p className="text-white">{course.instructor?.name}</p>
+                    {course.instructor?.bio && (
+                      <p className="text-gray-400 text-sm mt-1">{course.instructor.bio}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300">Category & Level</h3>
+                    <div className="flex gap-2 mt-1">
+                      <span className="px-2 py-1 bg-slate-700 text-white text-xs rounded">
+                        {courseHelpers.formatCategory(course.category)}
+                      </span>
+                      <span className={`px-2 py-1 text-xs rounded ${courseHelpers.getLevelColor(course.level)} bg-slate-700`}>
+                        {course.level}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300">Pricing</h3>
+                    <p className="text-white">{courseHelpers.getPricingDisplay(course.pricing)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-300">Description</h3>
+                  <p className="text-white text-sm leading-relaxed">{course.description}</p>
+                </div>
+
+                {course.whatYouWillLearn?.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300 mb-2">What You Will Learn</h3>
+                    <ul className="space-y-1">
+                      {course.whatYouWillLearn.map((item, index) => (
+                        <li key={index} className="text-white text-sm flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {course.requirements?.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300 mb-2">Requirements</h3>
+                    <ul className="space-y-1">
+                      {course.requirements.map((req, index) => (
+                        <li key={index} className="text-white text-sm flex items-start">
+                          <span className="text-red-400 mr-2">•</span>
+                          {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {course.tags?.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300 mb-2">Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {course.tags.map((tag, index) => (
+                        <span key={index} className="px-2 py-1 bg-slate-700 text-white text-xs rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Title</label>
+                  <input
+                    type="text"
+                    value={detailsForm.title}
+                    onChange={(e) => setDetailsForm(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Thumbnail URL</label>
+                  <input
+                    type="text"
+                    value={detailsForm.thumbnail}
+                    onChange={(e) => setDetailsForm(prev => ({ ...prev, thumbnail: e.target.value }))}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                  <select
+                    value={detailsForm.category}
+                    onChange={(e) => setDetailsForm(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  >
+                    <option value="mindfulness_basics">Mindfulness Basics</option>
+                    <option value="stress_management">Stress Management</option>
+                    <option value="sleep_meditation">Sleep Meditation</option>
+                    <option value="anxiety_relief">Anxiety Relief</option>
+                    <option value="focus_concentration">Focus & Concentration</option>
+                    <option value="emotional_wellness">Emotional Wellness</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Level</label>
+                  <select
+                    value={detailsForm.level}
+                    onChange={(e) => setDetailsForm(prev => ({ ...prev, level: e.target.value }))}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Pricing Type</label>
+                  <select
+                    value={detailsForm.pricingType}
+                    onChange={(e) => setDetailsForm(prev => ({ ...prev, pricingType: e.target.value }))}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  >
+                    <option value="free">Free</option>
+                    <option value="paid">Paid</option>
+                    <option value="premium">Premium (Subscription)</option>
+                  </select>
+                </div>
+
+                {detailsForm.pricingType === 'paid' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Price ($)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={detailsForm.price}
+                      onChange={(e) => setDetailsForm(prev => ({ ...prev, price: e.target.value }))}
+                      className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                <textarea
+                  value={detailsForm.description}
+                  onChange={(e) => setDetailsForm(prev => ({ ...prev, description: e.target.value }))}
+                  rows={4}
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Instructor Name</label>
+                  <input
+                    type="text"
+                    value={detailsForm.instructorName}
+                    onChange={(e) => setDetailsForm(prev => ({ ...prev, instructorName: e.target.value }))}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Instructor Bio</label>
+                  <input
+                    type="text"
+                    value={detailsForm.instructorBio}
+                    onChange={(e) => setDetailsForm(prev => ({ ...prev, instructorBio: e.target.value }))}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  What You Will Learn (one per line)
+                </label>
+                <textarea
+                  value={detailsForm.whatYouWillLearn}
+                  onChange={(e) => setDetailsForm(prev => ({ ...prev, whatYouWillLearn: e.target.value }))}
+                  rows={5}
+                  placeholder="Enter each learning point on a new line"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Requirements (one per line)
+                </label>
+                <textarea
+                  value={detailsForm.requirements}
+                  onChange={(e) => setDetailsForm(prev => ({ ...prev, requirements: e.target.value }))}
+                  rows={4}
+                  placeholder="Enter each requirement on a new line"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Tags (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={detailsForm.tags}
+                  onChange={(e) => setDetailsForm(prev => ({ ...prev, tags: e.target.value }))}
+                  placeholder="meditation, mindfulness, stress relief"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -683,43 +920,187 @@ const AdminCourseEdit = () => {
         </div>
       )}
 
-      {activeTab === 'analytics' && (
+      {activeTab === 'enrollments' && (
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-white">Course Analytics</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-white">Course Enrollments</h2>
+            <div className="bg-slate-700/50 px-4 py-2 rounded-lg">
+              <span className="text-sm text-gray-300">Total Enrolled: </span>
+              <span className="text-lg font-bold text-green-400">{enrollments.length}</span>
+            </div>
+          </div>
 
-          {analytics ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-red-500/20">
-                <h3 className="text-sm font-medium text-gray-300">Total Enrollments</h3>
-                <p className="text-2xl font-bold text-white mt-2">
-                  {analytics.analytics.totalEnrollments || 0}
-                </p>
-              </div>
-
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-red-500/20">
-                <h3 className="text-sm font-medium text-gray-300">Average Progress</h3>
-                <p className="text-2xl font-bold text-blue-400 mt-2">
-                  {Math.round(analytics.analytics.averageProgress || 0)}%
-                </p>
-              </div>
-
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-red-500/20">
-                <h3 className="text-sm font-medium text-gray-300">Completion Rate</h3>
-                <p className="text-2xl font-bold text-green-400 mt-2">
-                  {Math.round((analytics.analytics.completionRate || 0) * 100)}%
-                </p>
-              </div>
-
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-red-500/20">
-                <h3 className="text-sm font-medium text-gray-300">Avg Watch Time</h3>
-                <p className="text-2xl font-bold text-yellow-400 mt-2">
-                  {courseHelpers.formatDuration(analytics.analytics.averageWatchTime || 0)}
-                </p>
-              </div>
+          {loadingEnrollments ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+            </div>
+          ) : enrollments.length === 0 ? (
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-12 border border-red-500/20 text-center">
+              <div className="text-6xl mb-4">📚</div>
+              <h3 className="text-xl font-semibold text-white mb-2">No Enrollments Yet</h3>
+              <p className="text-gray-400">No users have enrolled in this course yet.</p>
             </div>
           ) : (
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl p-6 border border-red-500/20">
-              <p className="text-gray-400">Loading analytics...</p>
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-red-500/20 overflow-hidden">
+              {/* Desktop View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-700/50">
+                  <thead className="bg-slate-800/30">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        User
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Enrolled On
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Progress
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Payment
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-slate-800/20 divide-y divide-gray-700/50">
+                    {enrollments.map((enrollment) => (
+                      <tr key={enrollment._id} className="hover:bg-slate-700/30 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 bg-gradient-secondary rounded-full flex items-center justify-center text-white font-bold mr-3">
+                              {enrollment.user?.name?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-white">{enrollment.user?.name || 'Unknown User'}</div>
+                              <div className="text-sm text-gray-400">{enrollment.user?.email || 'N/A'}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-white">
+                            {new Date(enrollment.enrolledAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            {new Date(enrollment.enrolledAt).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-full bg-gray-700 rounded-full h-2 mr-2" style={{ width: '100px' }}>
+                              <div
+                                className="bg-green-500 h-2 rounded-full"
+                                style={{ width: `${enrollment.progress || 0}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-white">{Math.round(enrollment.progress || 0)}%</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            enrollment.status === 'completed'
+                              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                              : enrollment.status === 'in_progress'
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                              : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                          }`}>
+                            {enrollment.status === 'completed' ? 'Completed' : enrollment.status === 'in_progress' ? 'In Progress' : 'Enrolled'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {enrollment.payment ? (
+                            <div>
+                              <div className={`text-sm font-medium ${
+                                enrollment.payment.status === 'completed' ? 'text-green-400' : 'text-yellow-400'
+                              }`}>
+                                ${enrollment.payment.amount?.toFixed(2) || '0.00'}
+                              </div>
+                              <div className="text-xs text-gray-400 capitalize">{enrollment.payment.status || 'N/A'}</div>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">Free</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile View */}
+              <div className="md:hidden divide-y divide-gray-700/50">
+                {enrollments.map((enrollment) => (
+                  <div key={enrollment._id} className="p-4 hover:bg-slate-700/30 transition-colors">
+                    <div className="flex items-center mb-3">
+                      <div className="w-12 h-12 bg-gradient-secondary rounded-full flex items-center justify-center text-white font-bold mr-3">
+                        {enrollment.user?.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-white">{enrollment.user?.name || 'Unknown User'}</div>
+                        <div className="text-xs text-gray-400">{enrollment.user?.email || 'N/A'}</div>
+                      </div>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        enrollment.status === 'completed'
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        {enrollment.status === 'completed' ? 'Completed' : 'In Progress'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <div className="text-gray-400 text-xs mb-1">Enrolled</div>
+                        <div className="text-white">
+                          {new Date(enrollment.enrolledAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 text-xs mb-1">Progress</div>
+                        <div className="flex items-center">
+                          <div className="flex-1 bg-gray-700 rounded-full h-2 mr-2">
+                            <div
+                              className="bg-green-500 h-2 rounded-full"
+                              style={{ width: `${enrollment.progress || 0}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-white text-xs">{Math.round(enrollment.progress || 0)}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 text-xs mb-1">Payment</div>
+                        {enrollment.payment ? (
+                          <div className={`font-medium ${
+                            enrollment.payment.status === 'completed' ? 'text-green-400' : 'text-yellow-400'
+                          }`}>
+                            ${enrollment.payment.amount?.toFixed(2) || '0.00'}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">Free</span>
+                        )}
+                      </div>
+                      {enrollment.payment && (
+                        <div>
+                          <div className="text-gray-400 text-xs mb-1">Payment Status</div>
+                          <div className="text-white text-xs capitalize">{enrollment.payment.status || 'N/A'}</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
