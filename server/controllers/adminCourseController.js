@@ -677,6 +677,55 @@ const getCourseAnalytics = async (req, res) => {
   }
 };
 
+// Get course enrollments
+const getCourseEnrollments = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    const enrollments = await CourseEnrollment.find({ courseId: id })
+      .populate('userId', 'name email')
+      .sort({ enrolledAt: -1 });
+
+    // Format the response
+    const formattedEnrollments = enrollments.map(enrollment => ({
+      _id: enrollment._id,
+      user: {
+        name: enrollment.userId?.name || 'Unknown User',
+        email: enrollment.userId?.email || 'N/A'
+      },
+      enrolledAt: enrollment.enrolledAt,
+      progress: enrollment.progress?.percentage || 0,
+      status: enrollment.status,
+      payment: enrollment.payment ? {
+        amount: enrollment.payment.amount,
+        status: enrollment.payment.status,
+        transactionId: enrollment.payment.transactionId
+      } : null,
+      completedAt: enrollment.completedAt
+    }));
+
+    res.json({
+      success: true,
+      data: formattedEnrollments
+    });
+  } catch (error) {
+    console.error('Error fetching course enrollments:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching course enrollments',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllCoursesAdmin,
   getCourseByIdAdmin,
@@ -691,5 +740,6 @@ module.exports = {
   addLesson,
   updateLesson,
   deleteLesson,
-  getCourseAnalytics
+  getCourseAnalytics,
+  getCourseEnrollments
 };

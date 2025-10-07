@@ -168,6 +168,12 @@ export const coursesAPI = {
     getCourseAnalytics: async (courseId) => {
       const response = await api.get(`/admin/courses/${courseId}/analytics`);
       return response.data;
+    },
+
+    // Enrollments
+    getCourseEnrollments: async (courseId) => {
+      const response = await api.get(`/admin/courses/${courseId}/enrollments`);
+      return response.data;
     }
   }
 };
