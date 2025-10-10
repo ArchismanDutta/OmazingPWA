@@ -13,6 +13,17 @@ const VideoCarousel = () => {
     fetchVideos();
   }, []);
 
+  // Auto-scroll effect (right to left)
+  useEffect(() => {
+    if (videos.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev === videos.length - 1 ? 0 : prev + 1));
+    }, 5000); // Change every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [videos.length]);
+
   const fetchVideos = async () => {
     try {
       setLoading(true);
@@ -49,9 +60,9 @@ const VideoCarousel = () => {
 
   if (loading) {
     return (
-      <div className="w-full bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+      <div className="w-full bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <div className="flex items-center justify-center h-40 sm:h-48">
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-b-2 border-purple-600"></div>
         </div>
       </div>
     );
@@ -65,36 +76,30 @@ const VideoCarousel = () => {
   const embedUrl = getEmbedUrl(currentVideo);
 
   return (
-    <div className="w-full bg-slate-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden shadow-xl">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-700/50 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
-        <h2 className="text-xl font-bold text-white flex items-center">
-          <span className="mr-2">🎥</span>
-          Featured Videos
-        </h2>
-      </div>
-
+    <div className="w-full bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Carousel Content */}
       <div className="relative" ref={carouselRef}>
-        {/* Video Player */}
-        <div className="aspect-video bg-black">
-          {embedUrl ? (
-            <iframe
-              src={embedUrl}
-              title={currentVideo.title}
-              className="w-full h-full"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
-              <div className="text-center text-white">
-                <div className="text-6xl mb-4">🎬</div>
-                <p className="text-lg">Video Unavailable</p>
+        {/* Video Player - Smaller aspect ratio */}
+        <div className="relative w-full" style={{ paddingTop: '45%' }}>
+          <div className="absolute inset-0 bg-black">
+            {embedUrl ? (
+              <iframe
+                src={embedUrl}
+                title={currentVideo.title}
+                className="w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                <div className="text-center text-white">
+                  <div className="text-3xl sm:text-4xl mb-2">🎬</div>
+                  <p className="text-sm sm:text-base">Video Unavailable</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Navigation Arrows */}
@@ -102,44 +107,44 @@ const VideoCarousel = () => {
           <>
             <button
               onClick={handlePrevious}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all hover:scale-110 z-10"
+              className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/60 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all hover:scale-110 z-10"
               aria-label="Previous video"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={handleNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all hover:scale-110 z-10"
+              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/60 hover:bg-black/80 text-white rounded-full backdrop-blur-sm transition-all hover:scale-110 z-10"
               aria-label="Next video"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={18} className="sm:w-5 sm:h-5" />
             </button>
           </>
         )}
       </div>
 
       {/* Video Info */}
-      <div className="p-6">
-        <h3 className="text-lg font-semibold text-white mb-2">
+      <div className="p-3 sm:p-4 md:p-5">
+        <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2">
           {currentVideo.title}
         </h3>
         {currentVideo.description && (
-          <p className="text-gray-400 text-sm mb-4">
+          <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-2">
             {currentVideo.description}
           </p>
         )}
 
         {/* Indicators */}
         {videos.length > 1 && (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2">
             {videos.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
                 className={`transition-all duration-300 ${
                   index === currentIndex
-                    ? 'w-8 h-2 bg-gradient-to-r from-red-500 to-red-600 rounded-full'
-                    : 'w-2 h-2 bg-gray-600 hover:bg-gray-500 rounded-full'
+                    ? 'w-6 sm:w-8 h-1.5 sm:h-2 bg-purple-600 rounded-full'
+                    : 'w-1.5 sm:w-2 h-1.5 sm:h-2 bg-gray-300 hover:bg-gray-400 rounded-full'
                 }`}
                 aria-label={`Go to video ${index + 1}`}
               />
