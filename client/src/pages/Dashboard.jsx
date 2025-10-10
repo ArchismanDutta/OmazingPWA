@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import VideoCarousel from '../components/VideoCarousel';
-import Navigation from '../components/Navigation';
+import TopNavBar from '../components/navigation/TopNavBar';
 import MeditationTimer from '../components/MeditationTimer';
 import { contentAPI } from '../api/content';
 import { coursesAPI } from '../api/courses';
@@ -342,7 +342,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
-        <Navigation />
+        <TopNavBar />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col items-center justify-center h-96">
             <div className="relative">
@@ -364,55 +364,10 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 pb-24 md:pb-8">
-      <Navigation />
+      <TopNavBar />
 
-      {/* Meditation Timer Circular Button */}
-      <div className="fixed bottom-14 right-6 z-50 flex items-center justify-center">
-        <div className="relative w-32 h-32">
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-            <defs>
-              <path
-                id="circlePath"
-                d="
-                  M50,50
-                  m-40,0
-                  a40,40 0 1,1 80,0
-                  a40,40 0 1,1 -80,0
-                "
-              />
-            </defs>
-            <text className="text-xs fill-violet-600 font-semibold">
-              <textPath
-                href="#circlePath"
-                startOffset="50%"
-                textAnchor="middle"
-                className="animate-spin-slow"
-              >
-                • Start your meditation timer •
-              </textPath>
-            </text>
-          </svg>
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <MeditationTimer />
-          </div>
-        </div>
-
-        <style jsx>{`
-          @keyframes spin-slow {
-            from {
-              transform: rotate(0deg);
-            }
-            to {
-              transform: rotate(360deg);
-            }
-          }
-          .animate-spin-slow {
-            animation: spin-slow 10s linear infinite;
-            transform-origin: 50% 50%;
-          }
-        `}</style>
-      </div>
+      {/* Meditation Timer */}
+      <MeditationTimer />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
         <WelcomeSection userName={user?.name} />

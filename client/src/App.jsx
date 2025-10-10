@@ -23,6 +23,9 @@ import AdminVideos from './pages/admin/AdminVideos';
 import MediaPlayerDebug from './components/media/MediaPlayerDebug';
 import { getDefaultRouteForUser } from './utils/navigation';
 
+// Import the new MeditationGoal page
+import MeditationGoal from './pages/MeditationGoal';
+
 function AppContent() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -65,6 +68,17 @@ function AppContent() {
             isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Register />
           }
         />
+
+        {/* New Meditation Goal page */}
+        <Route
+          path="/meditation-goal"
+          element={
+            <ProtectedRoute>
+              <MeditationGoal />
+            </ProtectedRoute>
+          }
+        />
+
       <Route
         path="/dashboard"
         element={
