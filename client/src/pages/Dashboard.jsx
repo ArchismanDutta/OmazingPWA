@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import TopNavBar from '../components/navigation/TopNavBar';
+import VideoCarousel from '../components/VideoCarousel';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -125,6 +126,11 @@ const Dashboard = () => {
                 </div>
               </Link>
             </div>
+          </div>
+
+          {/* Video Carousel */}
+          <div className="mb-12 animate-slide-up">
+            <VideoCarousel />
           </div>
 
           {user && (
