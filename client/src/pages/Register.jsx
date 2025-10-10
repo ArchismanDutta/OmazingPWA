@@ -66,7 +66,7 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
       });
-      navigate('/dashboard');
+      navigate('/meditation-goal');
     } catch (error) {
       console.error('Registration failed:', error);
     }
@@ -74,7 +74,12 @@ const Register = () => {
 
   const handleGoogleLogin = (data) => {
     if (data.success) {
-      navigate('/dashboard');
+      // Check if user has wellness goals, if not redirect to meditation goal page
+      if (!data.user?.profile?.wellnessGoals || data.user.profile.wellnessGoals.length === 0) {
+        navigate('/meditation-goal');
+      } else {
+        navigate('/dashboard');
+      }
     }
   };
 

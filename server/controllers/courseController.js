@@ -76,22 +76,55 @@ const getAllCourses = async (req, res) => {
 
     const total = await totalQuery.countDocuments();
 
-    // Process CloudFront URLs for course thumbnails and media
-    courses.forEach(course => {
+    // Check user enrollment status for each course if user is authenticated
+    const userId = req.user?.id;
+    let userEnrollments = [];
+
+    if (userId) {
+      const courseIds = courses.map(course => course._id);
+      userEnrollments = await CourseEnrollment.find({
+        userId,
+        courseId: { $in: courseIds }
+      }).select('courseId');
+
+      console.log('User ID:', userId);
+      console.log('Course IDs:', courseIds.map(id => id.toString()));
+      console.log('User Enrollments found:', userEnrollments.length);
+      console.log('Enrolled Course IDs:', userEnrollments.map(e => e.courseId.toString()));
+    }
+
+    // Create a Set of enrolled course IDs for quick lookup
+    const enrolledCourseIds = new Set(userEnrollments.map(e => e.courseId.toString()));
+
+    // Process CloudFront URLs for course thumbnails and add hasAccess property
+    const processedCourses = courses.map(course => {
+      const courseObj = course.toObject();
+
       // Process thumbnail URL
-      if (course.thumbnail && course.thumbnail.includes('amazonaws.com')) {
+      if (courseObj.thumbnail && courseObj.thumbnail.includes('amazonaws.com')) {
         // Extract S3 key from URL
-        const urlParts = course.thumbnail.split('.amazonaws.com/');
+        const urlParts = courseObj.thumbnail.split('.amazonaws.com/');
         if (urlParts.length > 1) {
           const s3Key = urlParts[1];
-          course.thumbnail = getContentUrl(s3Key, false); // Public content, no signed URL
+          courseObj.thumbnail = getContentUrl(s3Key, false); // Public content, no signed URL
         }
       }
+
+      // Add hasAccess property
+      const isEnrolled = enrolledCourseIds.has(courseObj._id.toString());
+      const isFree = courseObj.pricing?.type === 'free';
+      courseObj.hasAccess = isEnrolled || isFree;
+
+      if (userId) {
+        console.log(`Course: ${courseObj.title}, ID: ${courseObj._id.toString()}, Enrolled: ${isEnrolled}, Free: ${isFree}, HasAccess: ${courseObj.hasAccess}`);
+      }
+
+      return courseObj;
     });
 
     res.json({
       success: true,
-      data: courses,
+      data: processedCourses,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(total / parseInt(limit)),

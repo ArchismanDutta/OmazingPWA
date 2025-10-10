@@ -269,6 +269,41 @@ const addRecentlyPlayed = async (req, res) => {
   }
 };
 
+const clearRecentlyPlayed = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: { "activities.recentlyPlayed": [] },
+        updatedAt: Date.now()
+      },
+      { new: true }
+    ).select("-password");
+
+    res.json({
+      success: true,
+      message: "Recently played history cleared",
+      data: { user: updatedUser }
+    });
+  } catch (error) {
+    console.error("Clear recently played error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to clear recently played history"
+    });
+  }
+};
+
 const getUserStats = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -334,6 +369,7 @@ module.exports = {
   updateMindfulnessStats,
   addToFavorites,
   addRecentlyPlayed,
+  clearRecentlyPlayed,
   getUserStats,
   deleteUserAccount
 };

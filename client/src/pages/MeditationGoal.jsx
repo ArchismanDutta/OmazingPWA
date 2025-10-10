@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { userAPI } from '../api/user';
 
 const MeditationGoal = () => {
   const navigate = useNavigate();
+  const { user, updateUser } = useAuth();
   const [selectedGoals, setSelectedGoals] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const goals = [
     'Reduce Stress & Anxiety',
@@ -23,10 +28,36 @@ const MeditationGoal = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // For now, just log and navigate
-    console.log('Selected Goals:', selectedGoals);
-    navigate('/home'); // Navigate to main app or next page
+  const handleSubmit = async () => {
+    if (selectedGoals.length === 0) return;
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      // Update user profile with wellness goals
+      await userAPI.updateUserProfile({
+        profile: {
+          wellnessGoals: selectedGoals
+        }
+      });
+
+      // Update local user state
+      updateUser({
+        profile: {
+          ...user?.profile,
+          wellnessGoals: selectedGoals
+        }
+      });
+
+      console.log('Selected Goals saved:', selectedGoals);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Error saving wellness goals:', err);
+      setError('Failed to save your goals. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -52,17 +83,25 @@ const MeditationGoal = () => {
               </p>
             </div>
 
+            {/* Error message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-center">
+                {error}
+              </div>
+            )}
+
             {/* Goals checkboxes */}
             <div className="grid sm:grid-cols-2 gap-4 animate-slide-in">
               {goals.map((goal, index) => (
                 <button
                   key={index}
                   onClick={() => toggleGoal(goal)}
+                  disabled={isSubmitting}
                   className={`flex items-center space-x-3 p-4 rounded-xl border transition-all duration-300 shadow-md hover:shadow-xl ${
                     selectedGoals.includes(goal)
                       ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white border-transparent'
                       : 'bg-white text-gray-700 border-violet-200 hover:border-violet-300'
-                  }`}
+                  } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   style={{ transitionDelay: `${index * 0.05}s` }}
                 >
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 ${selectedGoals.includes(goal) ? 'bg-white text-violet-600 border-white' : 'border-violet-300'}`}>
@@ -77,10 +116,17 @@ const MeditationGoal = () => {
             <div className="flex justify-center pt-6">
               <button
                 onClick={handleSubmit}
-                disabled={selectedGoals.length === 0}
-                className={`px-8 py-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed`}
+                disabled={selectedGoals.length === 0 || isSubmitting}
+                className={`px-8 py-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0`}
               >
-                Continue
+                {isSubmitting ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    <span>Saving...</span>
+                  </div>
+                ) : (
+                  'Continue to Dashboard'
+                )}
               </button>
             </div>
           </div>

@@ -45,6 +45,10 @@ const Login = () => {
   };
 
   const getRedirectPath = (user) => {
+    // Check if user has wellness goals set
+    if (!user?.profile?.wellnessGoals || user.profile.wellnessGoals.length === 0) {
+      return '/meditation-goal';
+    }
     return getDefaultRouteForUser(user);
   };
 

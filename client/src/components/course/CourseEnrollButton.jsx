@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const CourseEnrollButton = ({ course, onEnrollSuccess }) => {
+  const navigate = useNavigate();
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
   const [paymentId, setPaymentId] = useState(null);
@@ -22,9 +24,14 @@ const CourseEnrollButton = ({ course, onEnrollSuccess }) => {
       );
 
       if (response.data.success) {
-        alert('Successfully enrolled in course!');
+        // Call the onEnrollSuccess callback if provided
         onEnrollSuccess && onEnrollSuccess();
-        window.location.reload();
+
+        // Show success message and redirect to My Courses
+        alert('Successfully enrolled in course! Redirecting to My Courses...');
+        setTimeout(() => {
+          navigate('/my-courses');
+        }, 500);
       }
     } catch (error) {
       console.error('Enrollment error:', error);

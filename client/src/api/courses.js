@@ -74,8 +74,29 @@ export const coursesAPI = {
     return response.data;
   },
 
-  markLessonComplete: async (courseId, lessonId) => {
-    const response = await api.post(`/courses/${courseId}/lessons/${lessonId}/complete`);
+  markLessonComplete: async (courseId, lessonId, moduleId = null) => {
+    // If moduleId is not provided, we need to get it from the course
+    if (!moduleId) {
+      const courseResponse = await api.get(`/courses/${courseId}`);
+      const course = courseResponse.data.data;
+
+      // Find the module that contains this lesson
+      for (const module of course.modules) {
+        if (module.lessons.find(l => l._id === lessonId)) {
+          moduleId = module._id;
+          break;
+        }
+      }
+
+      if (!moduleId) {
+        throw new Error('Module not found for lesson');
+      }
+    }
+
+    const response = await api.put(
+      `/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/progress`,
+      { completed: true }
+    );
     return response.data;
   },
 

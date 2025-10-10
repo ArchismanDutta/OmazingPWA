@@ -15,6 +15,7 @@ const LessonView = () => {
   const [course, setCourse] = useState(location.state?.course || null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [loading, setLoading] = useState(!lesson || !course);
+  const [lastProgressUpdate, setLastProgressUpdate] = useState(0);
 
   useEffect(() => {
     if (!lesson || !course) {
@@ -54,17 +55,61 @@ const LessonView = () => {
   const handleComplete = async () => {
     if (!isCompleted) {
       setIsCompleted(true);
+
+      // Find the module that contains this lesson
+      let moduleId = null;
+      if (course) {
+        for (const module of course.modules) {
+          if (module.lessons.find(l => l._id === lessonId)) {
+            moduleId = module._id;
+            break;
+          }
+        }
+      }
+
       try {
-        await coursesAPI.markLessonComplete(courseId, lessonId);
+        await coursesAPI.markLessonComplete(courseId, lessonId, moduleId);
+        console.log('Lesson marked as complete successfully');
       } catch (err) {
         console.error('Error marking lesson as complete:', err);
+        setIsCompleted(false); // Revert if failed
       }
     }
   };
 
-  const handleProgress = (currentTime, duration) => {
+  const handleProgress = async (currentTime, duration) => {
+    // Auto-complete when user watches 80% of the video/audio
     if (duration > 0 && currentTime / duration >= 0.8 && !isCompleted) {
       handleComplete();
+    }
+
+    // Update progress every 10 seconds to track watch time
+    const now = Date.now();
+    if (now - lastProgressUpdate >= 10000) { // 10 seconds
+      setLastProgressUpdate(now);
+
+      // Find the module that contains this lesson
+      let moduleId = null;
+      if (course) {
+        for (const module of course.modules) {
+          if (module.lessons.find(l => l._id === lessonId)) {
+            moduleId = module._id;
+            break;
+          }
+        }
+      }
+
+      if (moduleId) {
+        try {
+          await coursesAPI.updateLessonProgress(courseId, moduleId, lessonId, {
+            watchTime: Math.floor(currentTime),
+            lastWatchedAt: new Date().toISOString()
+          });
+          console.log('Progress updated:', Math.floor(currentTime), 'seconds');
+        } catch (err) {
+          console.error('Error updating progress:', err);
+        }
+      }
     }
   };
 

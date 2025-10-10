@@ -7,6 +7,7 @@ const {
   updateMindfulnessStats,
   addToFavorites,
   addRecentlyPlayed,
+  clearRecentlyPlayed,
   getUserStats,
   deleteUserAccount
 } = require("../controllers/userController");
@@ -22,6 +23,8 @@ router.post("/mindfulness/session", updateMindfulnessStats);
 router.post("/favorites", addToFavorites);
 
 router.post("/recently-played", addRecentlyPlayed);
+
+router.delete("/recently-played", clearRecentlyPlayed);
 
 router.get("/stats", getUserStats);
 

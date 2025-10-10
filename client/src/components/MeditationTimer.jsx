@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Clock, Play, Pause, RotateCcw, X } from 'lucide-react';
+import { userAPI } from '../api/user';
+import { useAuth } from '../contexts/AuthContext';
 
 const MeditationTimer = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
   const [sessions, setSessions] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -45,10 +49,10 @@ const MeditationTimer = () => {
     setIsRunning(false);
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setIsRunning(false);
-    if (time > 0) {
-      // Save session
+    if (time > 0 && user) {
+      // Save session locally
       const newSession = {
         id: Date.now(),
         duration: time,
@@ -56,6 +60,23 @@ const MeditationTimer = () => {
         timestamp: new Date().toLocaleString()
       };
       setSessions(prev => [newSession, ...prev].slice(0, 10)); // Keep last 10 sessions
+
+      // Save session to backend
+      try {
+        setIsSaving(true);
+        const minutes = Math.floor(time / 60);
+        await userAPI.updateMindfulnessSession({
+          duration: time, // in seconds
+          minutes: minutes, // in minutes
+          completedAt: new Date().toISOString()
+        });
+        console.log('Meditation session saved successfully');
+      } catch (error) {
+        console.error('Failed to save meditation session:', error);
+        // You could add a toast notification here to inform the user
+      } finally {
+        setIsSaving(false);
+      }
     }
     setTime(0);
   };
@@ -66,10 +87,10 @@ const MeditationTimer = () => {
     <>
       {/* Floating Timer Button with Circular Text */}
       <div
-        className={`fixed bottom-24 right-6 z-40 transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
+        className={`fixed bottom-20 sm:bottom-24 right-4 sm:right-6 z-40 transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
         style={{ transitionDelay: isOpen ? '0ms' : '200ms' }}
       >
-        <div className="relative w-32 h-32 flex items-center justify-center">
+        <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center">
           {/* Circular Revolving Text */}
           <svg className="absolute inset-0 w-full h-full animate-spin-slow" viewBox="0 0 128 128">
             <defs>
@@ -95,8 +116,8 @@ const MeditationTimer = () => {
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 blur-xl opacity-60 group-hover:opacity-80 animate-pulse"></div>
 
               {/* Main button */}
-              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 shadow-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform">
-                <Clock className="w-7 h-7 text-white" strokeWidth={2.5} />
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 shadow-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform">
+                <Clock className="w-5 h-5 sm:w-7 sm:h-7 text-white" strokeWidth={2.5} />
               </div>
 
               {/* Active indicator */}
@@ -127,27 +148,27 @@ const MeditationTimer = () => {
 
       {/* Timer Panel */}
       <div
-        className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ease-out ${
+        className={`fixed inset-x-4 bottom-4 sm:inset-x-auto sm:bottom-6 sm:right-6 sm:left-auto z-50 transition-all duration-500 ease-out ${
           isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-75 opacity-0 translate-y-8 pointer-events-none'
         }`}
       >
         <div className="relative">
           {/* Glow effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-violet-400 via-purple-400 to-pink-400 rounded-3xl blur-2xl opacity-30"></div>
-          
+
           {/* Main panel */}
-          <div className="relative w-96 bg-white rounded-3xl shadow-2xl border border-violet-100 overflow-hidden">
+          <div className="relative w-full sm:w-96 bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-violet-100 overflow-hidden max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="relative bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 px-6 py-5">
+            <div className="relative bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 px-4 sm:px-6 py-4 sm:py-5">
               <div className="absolute inset-0 bg-black/10"></div>
               <div className="relative flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-white" />
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-white font-bold text-lg">Meditation Timer</h3>
-                    <p className="text-white/80 text-xs">Track your mindfulness</p>
+                    <h3 className="text-white font-bold text-base sm:text-lg">Meditation Timer</h3>
+                    <p className="text-white/80 text-xs hidden sm:block">Track your mindfulness</p>
                   </div>
                 </div>
                 <button
@@ -160,15 +181,15 @@ const MeditationTimer = () => {
             </div>
 
             {/* Timer Display */}
-            <div className="px-6 py-8">
+            <div className="px-4 sm:px-6 py-6 sm:py-8">
               <div className="relative">
                 {/* Decorative circles */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 opacity-30 blur-3xl"></div>
                 
-                <div className="relative text-center mb-8">
+                <div className="relative text-center mb-6 sm:mb-8">
                   <div className="inline-block relative">
                     {/* Outer ring */}
-                    <svg className="w-48 h-48 -rotate-90" viewBox="0 0 200 200">
+                    <svg className="w-36 h-36 sm:w-48 sm:h-48 -rotate-90" viewBox="0 0 200 200">
                       <circle
                         cx="100"
                         cy="100"
@@ -201,10 +222,10 @@ const MeditationTimer = () => {
 
                     {/* Time display */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-5xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
+                      <div className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-1">
                         {formatTime(time)}
                       </div>
-                      <div className="text-sm text-gray-500 font-medium">
+                      <div className="text-xs sm:text-sm text-gray-500 font-medium">
                         {isRunning ? 'Meditating...' : time > 0 ? 'Paused' : 'Ready to start'}
                       </div>
                     </div>
@@ -221,51 +242,55 @@ const MeditationTimer = () => {
                 </div>
 
                 {/* Control Buttons */}
-                <div className="flex items-center justify-center space-x-4">
+                <div className="flex items-center justify-center space-x-3 sm:space-x-4">
                   {!isRunning ? (
                     <button
                       onClick={handleStart}
-                      className="group relative w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                      className="group relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                     >
                       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-400 to-purple-400 blur-md opacity-50 group-hover:opacity-70 transition-opacity"></div>
                       <div className="relative flex items-center justify-center">
-                        <Play className="w-7 h-7 text-white ml-1" fill="white" />
+                        <Play className="w-6 h-6 sm:w-7 sm:h-7 text-white ml-1" fill="white" />
                       </div>
                     </button>
                   ) : (
                     <button
                       onClick={handlePause}
-                      className="group relative w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                      className="group relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                     >
                       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 blur-md opacity-50 group-hover:opacity-70 transition-opacity"></div>
                       <div className="relative flex items-center justify-center">
-                        <Pause className="w-7 h-7 text-white" fill="white" />
+                        <Pause className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="white" />
                       </div>
                     </button>
                   )}
 
                   <button
                     onClick={handleReset}
-                    disabled={time === 0}
-                    className="group relative w-16 h-16 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    disabled={time === 0 || isSaving}
+                    className="group relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 blur-md opacity-50 group-hover:opacity-70 transition-opacity"></div>
                     <div className="relative flex items-center justify-center">
-                      <RotateCcw className="w-6 h-6 text-white" />
+                      {isSaving ? (
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                      )}
                     </div>
                   </button>
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="mt-8 pt-6 border-t border-gray-100">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50">
-                    <div className="text-2xl font-bold text-violet-600">{sessions.length}</div>
+              <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="text-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50">
+                    <div className="text-xl sm:text-2xl font-bold text-violet-600">{sessions.length}</div>
                     <div className="text-xs text-gray-600 mt-1">Sessions Today</div>
                   </div>
-                  <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-pink-50 to-purple-50">
-                    <div className="text-2xl font-bold text-purple-600">{formatTime(totalMeditationTime)}</div>
+                  <div className="text-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-pink-50 to-purple-50">
+                    <div className="text-xl sm:text-2xl font-bold text-purple-600">{formatTime(totalMeditationTime)}</div>
                     <div className="text-xs text-gray-600 mt-1">Total Time</div>
                   </div>
                 </div>
@@ -273,24 +298,24 @@ const MeditationTimer = () => {
 
               {/* Recent Sessions */}
               {sessions.length > 0 && (
-                <div className="mt-6">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                <div className="mt-4 sm:mt-6">
+                  <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center">
                     <span className="w-1 h-4 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full mr-2"></span>
                     Recent Sessions
                   </h4>
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                  <div className="space-y-2 max-h-32 sm:max-h-40 overflow-y-auto">
                     {sessions.slice(0, 5).map((session) => (
                       <div
                         key={session.id}
-                        className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                        className="flex items-center justify-between p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
                       >
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-400 flex items-center justify-center">
-                            <Clock className="w-4 h-4 text-white" />
+                        <div className="flex items-center space-x-2 sm:space-x-3">
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-400 flex items-center justify-center flex-shrink-0">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                           </div>
                           <div>
-                            <div className="text-sm font-semibold text-gray-800">{formatTime(session.duration)}</div>
-                            <div className="text-xs text-gray-500">{new Date(session.date).toLocaleTimeString()}</div>
+                            <div className="text-xs sm:text-sm font-semibold text-gray-800">{formatTime(session.duration)}</div>
+                            <div className="text-[10px] sm:text-xs text-gray-500">{new Date(session.date).toLocaleTimeString()}</div>
                           </div>
                         </div>
                         <div className="text-xs text-violet-600 font-medium">✓</div>

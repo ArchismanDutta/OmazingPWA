@@ -271,32 +271,29 @@ const ContentDetail = () => {
     { label: content?.title || 'Loading...' }
   ];
 
-  const navActions = [];
-
-  if (user) {
-    navActions.push({
-      label: isFavorite ? '❤️ Favorited' : '🤍 Add to Favorites',
-      onClick: handleToggleFavorite,
-      variant: isFavorite ? 'secondary' : 'primary'
-    });
-  }
-
-  navActions.push({
-    label: 'Browse More',
-    onClick: () => navigate('/content'),
-    variant: 'secondary'
-  });
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 pb-8">
-      <TopNavBar
-        title={content?.title}
-        subtitle={content ? formatCategory(content.category) : 'Loading...'}
-        actions={navActions}
-      />
+      <TopNavBar />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <Breadcrumbs items={breadcrumbItems} backTo="/content" />
+        <div className="flex items-center justify-between mb-6">
+          <Breadcrumbs items={breadcrumbItems} backTo="/content" />
+
+          {/* Compact Favorites Button */}
+          {user && (
+            <button
+              onClick={handleToggleFavorite}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-sm shadow-sm hover:shadow-md transition-all ${
+                isFavorite
+                  ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
+                  : 'bg-white text-gray-700 border border-violet-200 hover:bg-violet-50'
+              }`}
+            >
+              <span className="text-lg">{isFavorite ? '❤️' : '🤍'}</span>
+              <span>{isFavorite ? 'Favorited' : 'Favorite'}</span>
+            </button>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Main content */}
@@ -313,31 +310,26 @@ const ContentDetail = () => {
             <div className="relative group animate-fade-in">
               <div className="absolute inset-0 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
               <div className="relative bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-violet-100 shadow-lg">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex-1">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-                      {content.title}
-                    </h1>
-                    <div className="flex items-center flex-wrap gap-3 text-sm">
-                      <span className="bg-violet-100 text-violet-700 px-3 py-1.5 rounded-full font-bold uppercase tracking-wide text-xs">
-                        {formatCategory(content.category)}
-                      </span>
+                <div className="flex items-center flex-wrap justify-between gap-3 mb-6 text-sm">
+                  <div className="flex items-center flex-wrap gap-3">
+                    <span className="bg-violet-100 text-violet-700 px-3 py-1.5 rounded-full font-bold uppercase tracking-wide text-xs">
+                      {formatCategory(content.category)}
+                    </span>
+                    <span className="flex items-center text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                      </svg>
+                      {content.viewCount || 0} views
+                    </span>
+                    {content.duration && (
                       <span className="flex items-center text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                          <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/>
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"/>
                         </svg>
-                        {content.viewCount || 0} views
+                        {formatDuration(content.duration)}
                       </span>
-                      {content.duration && (
-                        <span className="flex items-center text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                          <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"/>
-                          </svg>
-                          {formatDuration(content.duration)}
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
                   {content.isPremium && (
                     <span className="bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm px-4 py-2 rounded-full font-bold shadow-lg">

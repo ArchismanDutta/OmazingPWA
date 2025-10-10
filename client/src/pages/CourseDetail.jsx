@@ -139,41 +139,51 @@ const CourseDetail = () => {
     </div>
   );
 
-  const ModuleSection = ({ module, index }) => (
-    <div className="mb-6 sm:mb-8 animate-fade-in">
-      <div className="bg-white rounded-2xl border border-violet-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-        <div className="p-5 sm:p-6 border-b border-violet-100 bg-gradient-to-r from-violet-50 to-purple-50">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-1 h-6 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full"></div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                  Module {index + 1}: {module.title}
-                </h3>
+  const ModuleSection = ({ module, index }) => {
+    const isModuleLocked = !course.hasAccess && course.pricing.type !== 'free';
+
+    return (
+      <div className="mb-6 sm:mb-8 animate-fade-in">
+        <div className={`bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 ${isModuleLocked ? 'border-red-200 opacity-75' : 'border-violet-100'}`}>
+          <div className={`p-5 sm:p-6 border-b ${isModuleLocked ? 'border-red-100 bg-gradient-to-r from-red-50 to-orange-50' : 'border-violet-100 bg-gradient-to-r from-violet-50 to-purple-50'}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-2">
+                  {isModuleLocked ? (
+                    <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+                    </svg>
+                  ) : (
+                    <div className="w-1 h-6 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full"></div>
+                  )}
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+                    Module {index + 1}: {module.title}
+                  </h3>
+                </div>
+                {module.description && (
+                  <p className="text-gray-600 text-sm sm:text-base">{module.description}</p>
+                )}
               </div>
-              {module.description && (
-                <p className="text-gray-600 text-sm sm:text-base">{module.description}</p>
-              )}
-            </div>
-            <div className="text-sm font-medium text-violet-600 bg-violet-100 px-3 py-1.5 rounded-full ml-4">
-              {module.lessons.length} lessons
+              <div className={`text-sm font-medium px-3 py-1.5 rounded-full ml-4 ${isModuleLocked ? 'text-red-600 bg-red-100' : 'text-violet-600 bg-violet-100'}`}>
+                {module.lessons.length} lessons
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="p-4 sm:p-6 space-y-3">
-          {module.lessons.map((lesson, lessonIndex) => (
-            <LessonItem
-              key={lesson._id}
-              lesson={lesson}
-              moduleIndex={index}
-              lessonIndex={lessonIndex}
-            />
-          ))}
+          <div className="p-4 sm:p-6 space-y-3">
+            {module.lessons.map((lesson, lessonIndex) => (
+              <LessonItem
+                key={lesson._id}
+                lesson={lesson}
+                moduleIndex={index}
+                lessonIndex={lessonIndex}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -248,18 +258,29 @@ const CourseDetail = () => {
             <div className="relative grid lg:grid-cols-3 gap-6 sm:gap-8">
               {/* Course Image */}
               <div className="lg:col-span-1">
-                <div className="aspect-video bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg">
+                <div className="relative aspect-video bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg">
                   {course.thumbnail ? (
                     <img
                       src={course.thumbnail}
                       alt={course.title}
-                      className="w-full h-full object-cover"
+                      className={`w-full h-full object-cover ${!course.hasAccess && course.pricing.type !== 'free' ? 'opacity-50' : ''}`}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <svg className="w-16 h-16 text-violet-300" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"/>
                       </svg>
+                    </div>
+                  )}
+
+                  {/* Lock Overlay for Paid Courses without Access */}
+                  {!course.hasAccess && course.pricing.type !== 'free' && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+                      <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-2xl">
+                        <svg className="w-12 h-12 text-violet-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -348,7 +369,10 @@ const CourseDetail = () => {
                   <div className="w-full sm:w-auto">
                     {user ? (
                       course.hasAccess ? (
-                        <button className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <button
+                          onClick={() => navigate('/my-courses')}
+                          className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                        >
                           Start Learning
                         </button>
                       ) : (
@@ -369,11 +393,48 @@ const CourseDetail = () => {
           </div>
         </div>
 
+        {/* Lock Notice for Paid Courses without Access */}
+        {!course.hasAccess && course.pricing.type !== 'free' && (
+          <div className="relative group mb-8 animate-fade-in">
+            <div className="absolute inset-0 bg-gradient-to-r from-red-400 via-orange-400 to-pink-400 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+            <div className="relative bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl sm:rounded-3xl p-6 border border-red-200 shadow-lg">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">🔒 Course Locked</h3>
+                  <p className="text-gray-700 text-sm mb-3">
+                    This is a {course.pricing.type === 'premium' ? 'premium' : 'paid'} course. Enroll now to unlock all lessons and start learning!
+                  </p>
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                    </svg>
+                    <span>Unlock {course.metrics.lessonCount} lessons</span>
+                    <span>•</span>
+                    <span>{courseHelpers.formatDuration(course.metrics.totalDuration)} of content</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Course Content */}
         <div className="mb-8 sm:mb-10">
           <div className="flex items-center space-x-3 mb-6">
             <span className="text-2xl">📚</span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Course Content</h2>
+            {!course.hasAccess && course.pricing.type !== 'free' && (
+              <span className="text-sm px-3 py-1.5 bg-red-100 text-red-700 rounded-full font-bold border border-red-200">
+                🔒 Locked
+              </span>
+            )}
           </div>
 
           {course.modules && course.modules.length > 0 ? (
