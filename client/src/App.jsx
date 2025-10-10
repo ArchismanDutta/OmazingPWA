@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
 import RecentlyPlayed from './pages/RecentlyPlayed';
 import Courses from './pages/Courses';
+import MyCourses from './pages/MyCourses';
 import CourseDetail from './pages/CourseDetail';
 import LessonView from './pages/LessonView';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -91,6 +92,14 @@ function AppContent() {
       <Route
         path="/courses"
         element={<Courses />}
+      />
+      <Route
+        path="/my-courses"
+        element={
+          <ProtectedRoute>
+            <MyCourses />
+          </ProtectedRoute>
+        }
       />
       <Route
         path="/courses/:id"

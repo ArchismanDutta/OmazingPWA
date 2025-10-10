@@ -314,13 +314,15 @@ const enrollInCourse = async (req, res) => {
         user: userId,
         type: 'course',
         'relatedItem.itemId': id,
+        'relatedItem.itemType': 'Course',
         status: 'completed'
       });
 
       if (!payment) {
         return res.status(400).json({
           success: false,
-          message: 'Valid payment not found. Please complete payment first.'
+          message: 'Valid payment not found. Please complete payment first.',
+          debug: { paymentId, userId, courseId: id }
         });
       }
     }
@@ -545,6 +547,82 @@ const rateCourse = async (req, res) => {
   }
 };
 
+// Create dummy payment for testing (protected)
+const createDummyPayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const course = await Course.findOne({ _id: id, status: 'published' });
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    // Check if already enrolled
+    const existingEnrollment = await CourseEnrollment.findOne({ userId, courseId: id });
+
+    if (existingEnrollment) {
+      return res.status(400).json({
+        success: false,
+        message: 'Already enrolled in this course'
+      });
+    }
+
+    // Create a dummy payment record
+    const Payment = require('../models/Payment');
+
+    // Generate a unique dummy order ID
+    const dummyOrderId = `dummy_order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const dummyPaymentId = `dummy_payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    const payment = new Payment({
+      user: userId,
+      amount: course.pricing.discountPrice || course.pricing.amount,
+      currency: course.pricing.currency || 'INR',
+      type: 'course',
+      status: 'completed',
+      relatedItem: {
+        itemId: id,
+        itemType: 'Course' // Must match enum: 'Course', 'Content', or 'Subscription'
+      },
+      razorpay: {
+        orderId: dummyOrderId,
+        paymentId: dummyPaymentId,
+        signature: 'dummy_signature'
+      },
+      metadata: {
+        paymentMethod: 'dummy',
+        couponCode: null,
+        discountApplied: 0
+      },
+      completedAt: new Date()
+    });
+
+    await payment.save();
+
+    res.json({
+      success: true,
+      message: 'Dummy payment created successfully',
+      data: {
+        paymentId: payment._id,
+        amount: payment.amount,
+        currency: payment.currency
+      }
+    });
+  } catch (error) {
+    console.error('Error creating dummy payment:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating dummy payment',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllCourses,
   getCourseById,
@@ -555,5 +633,6 @@ module.exports = {
   updateLessonProgress,
   submitQuizAttempt,
   rateCourse,
-  getCourseCategories
+  getCourseCategories,
+  createDummyPayment
 };

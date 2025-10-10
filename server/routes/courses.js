@@ -4,12 +4,13 @@ const { body } = require('express-validator');
 
 const courseController = require('../controllers/courseController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const optionalAuthMiddleware = require('../middlewares/optionalAuthMiddleware');
 
-// Public routes
+// Public routes (but check auth if token is present)
 router.get('/', courseController.getAllCourses);
 router.get('/categories', courseController.getCategories);
 router.get('/levels', courseController.getLevels);
-router.get('/:id', courseController.getCourseById);
+router.get('/:id', optionalAuthMiddleware, courseController.getCourseById);
 
 // Protected routes (require authentication)
 router.post(
@@ -20,6 +21,13 @@ router.post(
     body('paymentMethod').optional().isString()
   ],
   courseController.enrollInCourse
+);
+
+// Dummy payment endpoint for testing/development
+router.post(
+  '/:id/dummy-payment',
+  authMiddleware,
+  courseController.createDummyPayment
 );
 
 router.get(

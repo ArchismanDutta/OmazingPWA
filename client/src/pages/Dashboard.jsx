@@ -4,9 +4,9 @@ import { ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import VideoCarousel from '../components/VideoCarousel';
 import Navigation from '../components/Navigation';
+import MeditationTimer from '../components/MeditationTimer';
 import { contentAPI } from '../api/content';
 import { coursesAPI } from '../api/courses';
-import MeditationTimer from '../components/MeditationTimer';
 
 const dailyQuotes = [
   {
@@ -45,14 +45,12 @@ const WelcomeSection = ({ userName }) => {
     currentHour < 12
       ? '🌅 Good Morning'
       : currentHour < 18
-      ? '☀️ Good Afternoon'
-      : '🌙 Good Evening';
+        ? '☀️ Good Afternoon'
+        : '🌙 Good Evening';
 
   return (
     <div className="mb-8 sm:mb-10">
-      <div className="text-sm sm:text-base text-violet-600 font-semibold mb-2">
-        {greeting}
-      </div>
+      <div className="text-sm sm:text-base text-violet-600 font-semibold mb-2">{greeting}</div>
       <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent mb-2">
         Welcome back, {userName ? userName.split(' ')[0] : 'Friend'}
       </h1>
@@ -63,40 +61,38 @@ const WelcomeSection = ({ userName }) => {
   );
 };
 
-const DailyQuote = ({ quote }) => {
-  return (
-    <div className="relative group mb-8 sm:mb-10">
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 rounded-3xl blur-xl opacity-30 group-hover:opacity-40 transition-opacity"></div>
-      <div className="relative bg-gradient-to-br from-violet-50 via-white to-purple-50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 border border-violet-100 overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-gradient-to-br from-violet-200/30 to-purple-200/30 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-tr from-pink-200/30 to-violet-200/30 rounded-full -ml-12 sm:-ml-16 -mb-12 sm:-mb-16"></div>
-        <div className="relative flex items-start space-x-6">
-          <div className="flex-1">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-1 h-6 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full"></div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Today's Wisdom
-              </h2>
-            </div>
-            <p className="text-gray-700 text-base sm:text-lg md:text-xl leading-relaxed mb-3 font-light">
-              "{quote.text}"
-            </p>
-            {quote.author !== "Mindfulness Practice" && (
-              <p className="text-violet-600 font-medium text-sm sm:text-base">
-                — {quote.author}
-              </p>
-            )}
+const DailyQuote = ({ quote }) => (
+  <div className="relative group mb-8 sm:mb-10">
+    <div className="absolute inset-0 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 rounded-3xl blur-xl opacity-30 group-hover:opacity-40 transition-opacity"></div>
+    <div className="relative bg-gradient-to-br from-violet-50 via-white to-purple-50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 border border-violet-100 overflow-hidden">
+      <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-gradient-to-br from-violet-200/30 to-purple-200/30 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24"></div>
+      <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-tr from-pink-200/30 to-violet-200/30 rounded-full -ml-12 sm:-ml-16 -mb-12 sm:-mb-16"></div>
+      <div className="relative flex items-start space-x-6">
+        <div className="flex-1">
+          <div className="flex items-center space-x-2 mb-4">
+            <div className="w-1 h-6 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full"></div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Today's Wisdom
+            </h2>
           </div>
-          <div className="hidden lg:block flex-shrink-0">
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-violet-400 via-purple-400 to-pink-400 shadow-2xl shadow-violet-500/40 flex items-center justify-center">
-              <span className="text-4xl">🧘</span>
-            </div>
+          <p className="text-gray-700 text-base sm:text-lg md:text-xl leading-relaxed mb-3 font-light">
+            "{quote.text}"
+          </p>
+          {quote.author !== "Mindfulness Practice" && (
+            <p className="text-violet-600 font-medium text-sm sm:text-base">
+              — {quote.author}
+            </p>
+          )}
+        </div>
+        <div className="hidden lg:block flex-shrink-0">
+          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-violet-400 via-purple-400 to-pink-400 shadow-2xl shadow-violet-500/40 flex items-center justify-center">
+            <span className="text-4xl">🧘</span>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  </div>
+);
 
 const CategoryCard = ({ category, onClick }) => {
   const categoryEmojis = {
@@ -213,25 +209,23 @@ const ContentCard = ({ content, onClick }) => {
   );
 };
 
-const SectionHeader = ({ title, onSeeAll, icon }) => {
-  return (
-    <div className="flex items-center justify-between mb-6 sm:mb-7">
-      <div className="flex items-center space-x-3">
-        {icon && <span className="text-2xl">{icon}</span>}
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
-      </div>
-      {onSeeAll && (
-        <button
-          onClick={onSeeAll}
-          className="flex items-center space-x-1 text-violet-600 hover:text-violet-700 transition-colors group"
-        >
-          <span className="text-sm sm:text-base font-semibold">See all</span>
-          <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-        </button>
-      )}
+const SectionHeader = ({ title, onSeeAll, icon }) => (
+  <div className="flex items-center justify-between mb-6 sm:mb-7">
+    <div className="flex items-center space-x-3">
+      {icon && <span className="text-2xl">{icon}</span>}
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
     </div>
-  );
-};
+    {onSeeAll && (
+      <button
+        onClick={onSeeAll}
+        className="flex items-center space-x-1 text-violet-600 hover:text-violet-700 transition-colors group"
+      >
+        <span className="text-sm sm:text-base font-semibold">See all</span>
+        <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+      </button>
+    )}
+  </div>
+);
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -245,19 +239,17 @@ const Dashboard = () => {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    const randomQuote = dailyQuotes[Math.floor(Math.random() * dailyQuotes.length)];
-    setDailyQuote(randomQuote);
+    setDailyQuote(dailyQuotes[Math.floor(Math.random() * dailyQuotes.length)]);
   }, []);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-
         const [contentRes, coursesRes, allCoursesRes] = await Promise.all([
           contentAPI.getPublicContent({ limit: 20 }),
           coursesAPI.getAllCourses({ limit: 3, status: 'published' }),
-          coursesAPI.getAllCourses({ limit: 50, status: 'published' })
+          coursesAPI.getAllCourses({ limit: 50, status: 'published' }),
         ]);
 
         if (contentRes.success && contentRes.data) {
@@ -269,7 +261,7 @@ const Dashboard = () => {
               categoryMap.set(cat, {
                 id: cat,
                 name: formatCategoryName(cat),
-                count: count
+                count,
               });
             }
           });
@@ -282,60 +274,43 @@ const Dashboard = () => {
           const allCourses = allCoursesRes.data;
           const allLessons = [];
           allCourses.forEach(course => {
-            if (course.modules && course.modules.length > 0) {
-              course.modules.forEach(module => {
-                if (module.lessons && module.lessons.length > 0) {
-                  module.lessons.forEach(lesson => {
-                    if (
-                      (lesson.content?.type === 'video' ||
-                        lesson.content?.type === 'audio') &&
-                      (lesson.isPreview || course.pricing?.type === 'free')
-                    ) {
-                      allLessons.push({
-                        _id: lesson._id,
-                        title: lesson.title,
-                        description:
-                          lesson.description ||
-                          course.shortDescription ||
-                          course.description,
-                        type: lesson.content.type,
-                        category: course.category,
-                        thumbnail: course.thumbnail,
-                        duration: lesson.duration,
-                        courseTitle: course.title,
-                        courseId: course._id,
-                        isPreview: lesson.isPreview,
-                        isFree: course.pricing?.type === 'free'
-                      });
-                    }
+            course.modules?.forEach(module => {
+              module.lessons?.forEach(lesson => {
+                if (
+                  (lesson.content?.type === 'video' || lesson.content?.type === 'audio') &&
+                  (lesson.isPreview || course.pricing?.type === 'free')
+                ) {
+                  allLessons.push({
+                    _id: lesson._id,
+                    title: lesson.title,
+                    description: lesson.description || course.shortDescription || course.description,
+                    type: lesson.content.type,
+                    category: course.category,
+                    thumbnail: course.thumbnail,
+                    duration: lesson.duration,
+                    courseTitle: course.title,
+                    courseId: course._id,
+                    isPreview: lesson.isPreview,
+                    isFree: course.pricing?.type === 'free',
                   });
                 }
               });
-            }
+            });
           });
-          const shuffled = allLessons.sort(() => 0.5 - Math.random());
-          recommendedItems = shuffled.slice(0, 6);
+          recommendedItems = allLessons.sort(() => 0.5 - Math.random()).slice(0, 6);
         }
-        if (
-          contentRes.success &&
-          contentRes.data &&
-          recommendedItems.length < 6
-        ) {
+        if (contentRes.success && contentRes.data && recommendedItems.length < 6) {
           const remainingSlots = 6 - recommendedItems.length;
-          const additionalContent = contentRes.data
-            .slice(0, remainingSlots)
-            .map(item => ({
-              _id: item._id,
-              title: item.title,
-              description: item.description,
-              type: item.type,
-              category: item.category
-            }));
+          const additionalContent = contentRes.data.slice(0, remainingSlots).map(item => ({
+            _id: item._id,
+            title: item.title,
+            description: item.description,
+            type: item.type,
+            category: item.category,
+          }));
           recommendedItems = [...recommendedItems, ...additionalContent];
         }
-        setRecommendedContent(
-          recommendedItems.sort(() => 0.5 - Math.random()).slice(0, 3)
-        );
+        setRecommendedContent(recommendedItems.sort(() => 0.5 - Math.random()).slice(0, 3));
 
         if (coursesRes.success && coursesRes.data) {
           setCourses(coursesRes.data.slice(0, 3));
@@ -348,7 +323,7 @@ const Dashboard = () => {
           { id: 'sleep', name: 'Sleep', count: 12 },
           { id: 'focus', name: 'Focus', count: 18 },
           { id: 'stress_relief', name: 'Stress Relief', count: 10 },
-          { id: 'yoga', name: 'Yoga', count: 8 }
+          { id: 'yoga', name: 'Yoga', count: 8 },
         ]);
       } finally {
         setLoading(false);
@@ -357,21 +332,12 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const handleCategoryClick = (category) => {
-    navigate(`/content?category=${category.id}`);
+  const handleCategoryClick = category => navigate(`/content?category=${category.id}`);
+  const handleContentClick = content => {
+    if (content.courseId) navigate(`/courses/${content.courseId}`);
+    else navigate(`/content/${content._id}`);
   };
-
-  const handleContentClick = (content) => {
-    if (content.courseId) {
-      navigate(`/courses/${content.courseId}`);
-    } else {
-      navigate(`/content/${content._id}`);
-    }
-  };
-
-  const handleCourseClick = (course) => {
-    navigate(`/courses/${course._id}`);
-  };
+  const handleCourseClick = course => navigate(`/courses/${course._id}`);
 
   if (loading) {
     return (
@@ -385,13 +351,11 @@ const Dashboard = () => {
                 className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-400 rounded-full animate-spin"
                 style={{
                   animationDirection: 'reverse',
-                  animationDuration: '1s'
+                  animationDuration: '1s',
                 }}
-              ></div>
+              />
             </div>
-            <p className="mt-6 text-violet-600 font-medium">
-              Loading your peaceful space...
-            </p>
+            <p className="mt-6 text-violet-600 font-medium">Loading your peaceful space...</p>
           </div>
         </div>
       </div>
@@ -401,54 +365,54 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 pb-24 md:pb-8">
       <Navigation />
-      
-<div className="fixed bottom-14 right-6 z-50 flex items-center justify-center">
-  <div className="relative w-32 h-32">
-    {/* Circular Rotating Text */}
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-      <defs>
-        <path
-          id="circlePath"
-          d="
-            M50,50
-            m-40,0
-            a40,40 0 1,1 80,0
-            a40,40 0 1,1 -80,0
-          "
-        />
-      </defs>
-      <text className="text-xs fill-violet-600 font-semibold">
-        <textPath
-          href="#circlePath"
-          startOffset="50%"
-          textAnchor="middle"
-          className="animate-spin-slow"
-        >
-          • Start your meditation timer •
-        </textPath>
-      </text>
-    </svg>
 
-    {/* Timer Button */}
-    <div className="absolute inset-0 flex items-center justify-center">
-      <MeditationTimer />
-    </div>
-  </div>
+      {/* Meditation Timer Circular Button */}
+      <div className="fixed bottom-14 right-6 z-50 flex items-center justify-center">
+        <div className="relative w-32 h-32">
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+            <defs>
+              <path
+                id="circlePath"
+                d="
+                  M50,50
+                  m-40,0
+                  a40,40 0 1,1 80,0
+                  a40,40 0 1,1 -80,0
+                "
+              />
+            </defs>
+            <text className="text-xs fill-violet-600 font-semibold">
+              <textPath
+                href="#circlePath"
+                startOffset="50%"
+                textAnchor="middle"
+                className="animate-spin-slow"
+              >
+                • Start your meditation timer •
+              </textPath>
+            </text>
+          </svg>
 
-  <style jsx>{`
-    @keyframes spin-slow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+          <div className="absolute inset-0 flex items-center justify-center">
+            <MeditationTimer />
+          </div>
+        </div>
 
-    .animate-spin-slow {
-      animation: spin-slow 10s linear infinite;
-      transform-origin: 50% 50%;
-    }
-  `}</style>
-</div>
-
-
+        <style jsx>{`
+          @keyframes spin-slow {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+          .animate-spin-slow {
+            animation: spin-slow 10s linear infinite;
+            transform-origin: 50% 50%;
+          }
+        `}</style>
+      </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
         <WelcomeSection userName={user?.name} />
@@ -542,12 +506,8 @@ const Dashboard = () => {
                       {course.description || course.shortDescription}
                     </p>
                     <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span>
-                        ⭐ {course.metrics?.rating?.average?.toFixed(1) || '0.0'}
-                      </span>
-                      <span>
-                        👥 {course.metrics?.enrollmentCount || 0} enrolled
-                      </span>
+                      <span>⭐ {course.metrics?.rating?.average?.toFixed(1) || '0.0'}</span>
+                      <span>👥 {course.metrics?.enrollmentCount || 0} enrolled</span>
                     </div>
                   </div>
                 </div>
@@ -641,21 +601,9 @@ const Dashboard = () => {
           </div>
         </section>
       </main>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out;
-        }
-        .safe-area-bottom {
-          padding-bottom: env(safe-area-inset-bottom, 0.75rem);
-        }
-      `}</style>
     </div>
   );
 };
 
 export default Dashboard;
+
