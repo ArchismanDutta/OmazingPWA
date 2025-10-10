@@ -9,10 +9,10 @@ const AdminLayout = ({ children }) => {
   const { user, logout } = useAuth();
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: '📊' },
+    // { name: 'Dashboard', href: '/admin', icon: '📊' },
     { name: 'Users', href: '/admin/users', icon: '👥' },
     { name: 'Courses', href: '/admin/courses', icon: '🎓' },
-    { name: 'Content', href: '/admin/content', icon: '🎵' },
+    { name: 'Content', href: '/admin/content', icon: '📄' },
     { name: 'Videos', href: '/admin/videos', icon: '🎥' },
     // { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
   ];

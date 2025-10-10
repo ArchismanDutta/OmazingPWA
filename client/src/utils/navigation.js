@@ -6,9 +6,9 @@ export const getDefaultRouteForUser = (user) => {
   if (!user) return '/login';
 
   // Admin and manager users go to admin panel
-  if (user.role === 'admin' || user.role === 'manager') {
-    return '/admin';
-  }
+  // if (user.role === 'admin' || user.role === 'manager') {
+  //   return '/admin';
+  // }
 
   // Regular users go to dashboard
   return '/dashboard';
@@ -48,7 +48,7 @@ export const getNavMenuForUser = (user) => {
 
   if (isAdminUser(user)) {
     return [
-      { label: 'Admin Dashboard', path: '/admin', icon: '⚡' },
+      { label: 'Admin Dashboard', path: '/admin/users', icon: '⚡' },
       { label: 'Manage Users', path: '/admin/users', icon: '👥' },
       { label: 'Manage Content', path: '/admin/content', icon: '📁' },
       { label: 'Analytics', path: '/admin/analytics', icon: '📊' },
