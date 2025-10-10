@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Home, BookOpen, Tag, User, ChevronRight, Menu, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import VideoCarousel from '../components/VideoCarousel';
+import Navigation from '../components/Navigation';
+import { contentAPI } from '../api/content';
+import { coursesAPI } from '../api/courses';
+import MeditationTimer from '../components/MeditationTimer';
 
-// Daily meditation quotes
 const dailyQuotes = [
   {
     text: "Feel less stressed and more mindful with meditation. Discover peace, balance, and renewed energy every day.",
@@ -28,192 +31,66 @@ const dailyQuotes = [
   }
 ];
 
-// Navigation Component
-const Navigation = ({ activeTab, setActiveTab }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const navItems = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'courses', label: 'Courses', icon: BookOpen },
-    { id: 'pricing', label: 'Pricing', icon: Tag },
-    { id: 'profile', label: 'Profile', icon: User }
-  ];
-
-  return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14 sm:h-16">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm sm:text-lg">Om</span>
-            </div>
-            <span className="text-lg sm:text-xl font-semibold text-gray-800">Omazing</span>
-          </div>
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                    activeTab === item.id
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Dropdown Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-2 animate-fade-in">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 transition-all ${
-                    activeTab === item.id
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Bottom Mobile Navigation Bar (Fixed) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-        <div className="grid grid-cols-4 gap-1 px-2 py-2 safe-area-bottom">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex flex-col items-center space-y-1 p-2 rounded-lg transition-all ${
-                  activeTab === item.id
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-600 active:bg-gray-100'
-                }`}
-              >
-                <Icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-                <span className="text-xs font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </nav>
-  );
+const formatCategoryName = (category) => {
+  if (!category) return '';
+  return category
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
-// Welcome Section Component
 const WelcomeSection = ({ userName }) => {
+  const currentHour = new Date().getHours();
+  const greeting =
+    currentHour < 12
+      ? '🌅 Good Morning'
+      : currentHour < 18
+      ? '☀️ Good Afternoon'
+      : '🌙 Good Evening';
+
   return (
-    <div className="mb-6 sm:mb-8">
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
-        Welcome, {userName ? userName.split(' ')[0] : 'Guest'}.
+    <div className="mb-8 sm:mb-10">
+      <div className="text-sm sm:text-base text-violet-600 font-semibold mb-2">
+        {greeting}
+      </div>
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent mb-2">
+        Welcome back, {userName ? userName.split(' ')[0] : 'Friend'}
       </h1>
-      <p className="text-base sm:text-lg text-gray-600">Find your next session below</p>
+      <p className="text-base sm:text-lg text-gray-600">
+        Your journey to mindfulness continues
+      </p>
     </div>
   );
 };
 
-// Daily Quote Component
 const DailyQuote = ({ quote }) => {
   return (
-    <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 md:p-8 mb-6 sm:mb-8 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 opacity-50"></div>
-      <div className="relative flex items-start space-x-4 sm:space-x-6">
-        <div className="flex-1 min-w-0">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Daily Meditation</h2>
-          <p className="text-gray-700 text-sm sm:text-base md:text-lg leading-relaxed mb-2">
-            {quote.text}
-          </p>
-          {quote.author !== "Mindfulness Practice" && (
-            <p className="text-gray-500 italic text-sm sm:text-base">— {quote.author}</p>
-          )}
-        </div>
-        <div className="hidden sm:block flex-shrink-0">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 border-4 border-white shadow-lg"></div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Category Card Component
-const CategoryCard = ({ category, onClick }) => {
-  return (
-    <div
-      onClick={onClick}
-      className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 md:p-6 hover:shadow-md active:scale-95 transition-all cursor-pointer group"
-    >
-      <div className="flex flex-col items-center text-center space-y-2 sm:space-y-3">
-        <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full overflow-hidden border-2 border-gray-100 group-hover:border-purple-200 transition-all flex-shrink-0">
-          <img
-            src={category.image}
-            alt={category.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="min-w-0 w-full">
-          <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg mb-0.5 sm:mb-1 truncate">{category.name}</h3>
-          <p className="text-xs sm:text-sm text-gray-500">{category.count} courses</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Content Card Component
-const ContentCard = ({ content, onClick }) => {
-  return (
-    <div
-      onClick={onClick}
-      className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md active:scale-98 transition-all cursor-pointer group"
-    >
-      <div className="flex items-center p-3 sm:p-4 space-x-3 sm:space-x-4">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg mb-0.5 sm:mb-1 group-hover:text-purple-600 transition-colors line-clamp-1">
-            {content.title}
-          </h3>
-          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">{content.description}</p>
-        </div>
-        <div className="flex-shrink-0">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden">
-            <img
-              src={content.image}
-              alt={content.title}
-              className="w-full h-full object-cover"
-            />
+    <div className="relative group mb-8 sm:mb-10">
+      <div className="absolute inset-0 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 rounded-3xl blur-xl opacity-30 group-hover:opacity-40 transition-opacity"></div>
+      <div className="relative bg-gradient-to-br from-violet-50 via-white to-purple-50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 border border-violet-100 overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-gradient-to-br from-violet-200/30 to-purple-200/30 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-tr from-pink-200/30 to-violet-200/30 rounded-full -ml-12 sm:-ml-16 -mb-12 sm:-mb-16"></div>
+        <div className="relative flex items-start space-x-6">
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-1 h-6 bg-gradient-to-b from-violet-500 to-purple-500 rounded-full"></div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Today's Wisdom
+              </h2>
+            </div>
+            <p className="text-gray-700 text-base sm:text-lg md:text-xl leading-relaxed mb-3 font-light">
+              "{quote.text}"
+            </p>
+            {quote.author !== "Mindfulness Practice" && (
+              <p className="text-violet-600 font-medium text-sm sm:text-base">
+                — {quote.author}
+              </p>
+            )}
+          </div>
+          <div className="hidden lg:block flex-shrink-0">
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-violet-400 via-purple-400 to-pink-400 shadow-2xl shadow-violet-500/40 flex items-center justify-center">
+              <span className="text-4xl">🧘</span>
+            </div>
           </div>
         </div>
       </div>
@@ -221,141 +98,300 @@ const ContentCard = ({ content, onClick }) => {
   );
 };
 
-// Section Header Component
-const SectionHeader = ({ title, onSeeAll }) => {
+const CategoryCard = ({ category, onClick }) => {
+  const categoryEmojis = {
+    meditation: '🧘',
+    music: '🎵',
+    nature_sounds: '🌿',
+    guided_meditation: '🎧',
+    breathing_exercises: '💨',
+    yoga: '🤸',
+    mindfulness: '✨',
+    stress_relief: '😌',
+    sleep: '😴',
+    focus: '🎯',
+    inspiration: '💫'
+  };
+
   return (
-    <div className="flex items-center justify-between mb-4 sm:mb-5 md:mb-6">
-      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{title}</h2>
+    <div
+      onClick={onClick}
+      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 cursor-pointer hover:-translate-y-1"
+    >
+      <div className="flex flex-col items-center text-center space-y-3">
+        <div className="text-4xl sm:text-5xl transform group-hover:scale-110 transition-transform">
+          {categoryEmojis[category.id] || '🌸'}
+        </div>
+        <div>
+          <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">{category.name}</h3>
+          <p className="text-sm text-gray-500">{category.count} items</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ContentCard = ({ content, onClick }) => {
+  const getContentIcon = (type) => {
+    switch (type) {
+      case 'audio': return '🎵';
+      case 'video': return '🎥';
+      case 'image': return '🖼️';
+      default: return '📄';
+    }
+  };
+
+  const formatDuration = (seconds) => {
+    if (!seconds) return null;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div
+      onClick={onClick}
+      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-1"
+    >
+      <div className="flex items-center p-4 sm:p-5 space-x-4">
+        <div className="flex-shrink-0">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-400 to-purple-400 rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity"></div>
+            {content.thumbnail ? (
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border-2 border-violet-100">
+                <img
+                  src={content.thumbnail}
+                  alt={content.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
+                  <span className="text-3xl">{getContentIcon(content.type)}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-100">
+                <span className="text-3xl sm:text-4xl">{getContentIcon(content.type)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors line-clamp-1">
+            {content.title}
+          </h3>
+          <p className="text-sm text-gray-600 line-clamp-2">{content.description || 'Discover peace and mindfulness'}</p>
+          <div className="flex items-center space-x-2 mt-2 flex-wrap gap-1">
+            {content.category && (
+              <span className="text-xs font-medium text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">
+                {formatCategoryName(content.category)}
+              </span>
+            )}
+            {content.courseTitle && (
+              <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                📚 {content.courseTitle}
+              </span>
+            )}
+            {content.duration && (
+              <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">
+                ⏱️ {formatDuration(content.duration)}
+              </span>
+            )}
+            {content.isFree && (
+              <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                FREE
+              </span>
+            )}
+            {content.isPreview && !content.isFree && (
+              <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                PREVIEW
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SectionHeader = ({ title, onSeeAll, icon }) => {
+  return (
+    <div className="flex items-center justify-between mb-6 sm:mb-7">
+      <div className="flex items-center space-x-3">
+        {icon && <span className="text-2xl">{icon}</span>}
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
+      </div>
       {onSeeAll && (
         <button
           onClick={onSeeAll}
-          className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 active:text-gray-900 transition-colors flex-shrink-0"
+          className="flex items-center space-x-1 text-violet-600 hover:text-violet-700 transition-colors group"
         >
-          <span className="text-xs sm:text-sm font-medium">See all</span>
-          <ChevronRight size={16} className="sm:w-4 sm:h-4" />
+          <span className="text-sm sm:text-base font-semibold">See all</span>
+          <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
         </button>
       )}
     </div>
   );
 };
 
-// Main Dashboard Component
 const Dashboard = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('home');
+  const navigate = useNavigate();
   const [dailyQuote, setDailyQuote] = useState(dailyQuotes[0]);
-  const [categories, setCategories] = useState([]);
-  const [recommendedContent, setRecommendedContent] = useState([]);
-  const [meditationMusic, setMeditationMusic] = useState([]);
-  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Get random daily quote on mount
+  const [categories, setCategories] = useState([]);
+  const [recommendedContent, setRecommendedContent] = useState([]);
+  const [trendingContent, setTrendingContent] = useState([]);
+  const [courses, setCourses] = useState([]);
+
   useEffect(() => {
     const randomQuote = dailyQuotes[Math.floor(Math.random() * dailyQuotes.length)];
     setDailyQuote(randomQuote);
   }, []);
 
-  // Fetch data from backend
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // Fetch courses for categories (using course categories as content categories)
-        const coursesRes = await fetch('/api/courses?limit=6');
-        const coursesData = await coursesRes.json();
+        const [contentRes, coursesRes, allCoursesRes] = await Promise.all([
+          contentAPI.getPublicContent({ limit: 20 }),
+          coursesAPI.getAllCourses({ limit: 3, status: 'published' }),
+          coursesAPI.getAllCourses({ limit: 50, status: 'published' })
+        ]);
 
-        if (coursesData.success) {
-          setCourses(coursesData.data);
-
-          // Create categories from course data
+        if (contentRes.success && contentRes.data) {
+          const content = contentRes.data;
           const categoryMap = new Map();
-          coursesData.data.forEach(course => {
-            const cat = course.category;
-            if (!categoryMap.has(cat)) {
+          contentAPI.getCategories().forEach(cat => {
+            const count = content.filter(item => item.category === cat).length;
+            if (count > 0) {
               categoryMap.set(cat, {
+                id: cat,
                 name: formatCategoryName(cat),
-                count: 1,
-                image: course.thumbnail || 'https://via.placeholder.com/100'
+                count: count
               });
-            } else {
-              categoryMap.get(cat).count++;
             }
           });
-
           setCategories(Array.from(categoryMap.values()).slice(0, 6));
+          setTrendingContent(content.slice(-6).reverse());
         }
 
-        // Fetch recommended content (audio content)
-        const contentRes = await fetch('/api/content/public?type=audio&limit=3');
-        const contentData = await contentRes.json();
-
-        if (contentData.success) {
-          setRecommendedContent(contentData.data.map(item => ({
-            title: item.title,
-            description: item.description || 'Practice mindfulness',
-            image: item.storage?.url || 'https://via.placeholder.com/100'
-          })));
+        let recommendedItems = [];
+        if (allCoursesRes.success && allCoursesRes.data) {
+          const allCourses = allCoursesRes.data;
+          const allLessons = [];
+          allCourses.forEach(course => {
+            if (course.modules && course.modules.length > 0) {
+              course.modules.forEach(module => {
+                if (module.lessons && module.lessons.length > 0) {
+                  module.lessons.forEach(lesson => {
+                    if (
+                      (lesson.content?.type === 'video' ||
+                        lesson.content?.type === 'audio') &&
+                      (lesson.isPreview || course.pricing?.type === 'free')
+                    ) {
+                      allLessons.push({
+                        _id: lesson._id,
+                        title: lesson.title,
+                        description:
+                          lesson.description ||
+                          course.shortDescription ||
+                          course.description,
+                        type: lesson.content.type,
+                        category: course.category,
+                        thumbnail: course.thumbnail,
+                        duration: lesson.duration,
+                        courseTitle: course.title,
+                        courseId: course._id,
+                        isPreview: lesson.isPreview,
+                        isFree: course.pricing?.type === 'free'
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          });
+          const shuffled = allLessons.sort(() => 0.5 - Math.random());
+          recommendedItems = shuffled.slice(0, 6);
         }
-
-        // Fetch meditation music (audio content from music category)
-        const musicRes = await fetch('/api/content/public?type=audio&category=music&limit=3');
-        const musicData = await musicRes.json();
-
-        if (musicData.success) {
-          setMeditationMusic(musicData.data.map(item => ({
-            title: item.title,
-            description: item.description || 'Calm your mind and body',
-            image: item.storage?.url || 'https://via.placeholder.com/100'
-          })));
+        if (
+          contentRes.success &&
+          contentRes.data &&
+          recommendedItems.length < 6
+        ) {
+          const remainingSlots = 6 - recommendedItems.length;
+          const additionalContent = contentRes.data
+            .slice(0, remainingSlots)
+            .map(item => ({
+              _id: item._id,
+              title: item.title,
+              description: item.description,
+              type: item.type,
+              category: item.category
+            }));
+          recommendedItems = [...recommendedItems, ...additionalContent];
         }
+        setRecommendedContent(
+          recommendedItems.sort(() => 0.5 - Math.random()).slice(0, 3)
+        );
 
+        if (coursesRes.success && coursesRes.data) {
+          setCourses(coursesRes.data.slice(0, 3));
+        }
       } catch (error) {
-        console.error('Error fetching data:', error);
-        // Set fallback data
+        console.error('Error fetching dashboard data:', error);
         setCategories([
-          { name: 'Focus', count: 32, image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100&h=100&fit=crop' },
-          { name: 'Body Scan', count: 18, image: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=100&h=100&fit=crop' },
-          { name: 'Sleep', count: 25, image: 'https://images.unsplash.com/photo-1511295742362-92c96b1cf484?w=100&h=100&fit=crop' },
-          { name: 'Relax', count: 20, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop' },
-          { name: 'Calm', count: 12, image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=100&h=100&fit=crop' },
-          { name: 'Energy', count: 22, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=100&fit=crop' }
-        ]);
-
-        setRecommendedContent([
-          { title: 'Mindfulness', description: 'Practice and develop mindfulness', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100&h=100&fit=crop' },
-          { title: 'Relaxing Sounds', description: 'Calm your mind and body', image: 'https://images.unsplash.com/photo-1511295742362-92c96b1cf484?w=100&h=100&fit=crop' },
-          { title: 'Focus Booster', description: 'Improve your attention span', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100&h=100&fit=crop' }
-        ]);
-
-        setMeditationMusic([
-          { title: 'Deep Sleep', description: 'Sleep better with guided sessions', image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=100&h=100&fit=crop' },
-          { title: 'Focus Boost', description: 'Increase concentration with sounds', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100&h=100&fit=crop' },
-          { title: 'Morning Energy', description: 'Kickstart your day with clarity', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop' }
+          { id: 'meditation', name: 'Meditation', count: 15 },
+          { id: 'music', name: 'Music', count: 20 },
+          { id: 'sleep', name: 'Sleep', count: 12 },
+          { id: 'focus', name: 'Focus', count: 18 },
+          { id: 'stress_relief', name: 'Stress Relief', count: 10 },
+          { id: 'yoga', name: 'Yoga', count: 8 }
         ]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  const formatCategoryName = (category) => {
-    return category
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+  const handleCategoryClick = (category) => {
+    navigate(`/content?category=${category.id}`);
+  };
+
+  const handleContentClick = (content) => {
+    if (content.courseId) {
+      navigate(`/courses/${content.courseId}`);
+    } else {
+      navigate(`/content/${content._id}`);
+    }
+  };
+
+  const handleCourseClick = (course) => {
+    navigate(`/courses/${course._id}`);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+        <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-purple-600"></div>
+          <div className="flex flex-col items-center justify-center h-96">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin"></div>
+              <div
+                className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-400 rounded-full animate-spin"
+                style={{
+                  animationDirection: 'reverse',
+                  animationDuration: '1s'
+                }}
+              ></div>
+            </div>
+            <p className="mt-6 text-violet-600 font-medium">
+              Loading your peaceful space...
+            </p>
           </div>
         </div>
       </div>
@@ -363,187 +399,259 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
-      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 pb-24 md:pb-8">
+      <Navigation />
+      
+<div className="fixed bottom-14 right-6 z-50 flex items-center justify-center">
+  <div className="relative w-32 h-32">
+    {/* Circular Rotating Text */}
+    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+      <defs>
+        <path
+          id="circlePath"
+          d="
+            M50,50
+            m-40,0
+            a40,40 0 1,1 80,0
+            a40,40 0 1,1 -80,0
+          "
+        />
+      </defs>
+      <text className="text-xs fill-violet-600 font-semibold">
+        <textPath
+          href="#circlePath"
+          startOffset="50%"
+          textAnchor="middle"
+          className="animate-spin-slow"
+        >
+          • Start your meditation timer •
+        </textPath>
+      </text>
+    </svg>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
-        {/* Welcome Section */}
+    {/* Timer Button */}
+    <div className="absolute inset-0 flex items-center justify-center">
+      <MeditationTimer />
+    </div>
+  </div>
+
+  <style jsx>{`
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .animate-spin-slow {
+      animation: spin-slow 10s linear infinite;
+      transform-origin: 50% 50%;
+    }
+  `}</style>
+</div>
+
+
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
         <WelcomeSection userName={user?.name} />
-
-        {/* Daily Quote */}
         <DailyQuote quote={dailyQuote} />
 
-        {/* Video Carousel - Integrated from incoming branch */}
-        <div className="mb-8 sm:mb-10 md:mb-12">
+        {recommendedContent.length > 0 && (
+          <section className="mb-10 sm:mb-12 md:mb-16">
+            <SectionHeader
+              title="Recommended for You"
+              icon="✨"
+              onSeeAll={() => navigate('/content')}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {recommendedContent.map((content, index) => (
+                <ContentCard
+                  key={content._id || index}
+                  content={content}
+                  onClick={() => handleContentClick(content)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {categories.length > 0 && (
+          <section className="mb-10 sm:mb-12 md:mb-16">
+            <SectionHeader
+              title="Browse by Category"
+              icon="🌸"
+              onSeeAll={() => navigate('/content')}
+            />
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
+              {categories.map((category, index) => (
+                <CategoryCard
+                  key={category.id || index}
+                  category={category}
+                  onClick={() => handleCategoryClick(category)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="mb-10 sm:mb-12 md:mb-16">
+          <SectionHeader title="Featured Videos" icon="🎬" />
           <VideoCarousel />
-        </div>
-
-        {/* Explore by Categories */}
-        <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader
-            title="Explore by Categories"
-            onSeeAll={() => console.log('See all categories')}
-          />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-            {categories.map((category, index) => (
-              <CategoryCard
-                key={index}
-                category={category}
-                onClick={() => console.log('Category clicked:', category.name)}
-              />
-            ))}
-          </div>
         </section>
 
-        {/* Quick Access Links */}
-        <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader title="Quick Access" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Link
-              to="/content"
-              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md active:scale-98 transition-all group"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="text-3xl">📚</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors">Content Library</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Explore all content</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              to="/content?type=audio&category=music"
-              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md active:scale-98 transition-all group"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="text-3xl">🎵</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors">Meditation Music</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Calming tracks</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              to="/favorites"
-              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md active:scale-98 transition-all group"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="text-3xl">❤️</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors">Favorites</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">{user?.activities?.favoriteContent?.length || 0} saved items</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              to="/recently-played"
-              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md active:scale-98 transition-all group"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="text-3xl">⏱️</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors">Recently Played</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">{user?.activities?.recentlyPlayed?.length || 0} recent items</p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </section>
-
-        {/* Recommended for You */}
-        <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader
-            title="Recommended for You"
-            onSeeAll={() => console.log('See all recommendations')}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {recommendedContent.map((content, index) => (
-              <ContentCard
-                key={index}
-                content={content}
-                onClick={() => console.log('Content clicked:', content.title)}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* Meditation Music for You */}
-        <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader
-            title="Meditation Music for You"
-            onSeeAll={() => console.log('See all music')}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {meditationMusic.map((music, index) => (
-              <ContentCard
-                key={index}
-                content={music}
-                onClick={() => console.log('Music clicked:', music.title)}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* Mindful Courses */}
-        <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader
-            title="Mindful Courses"
-            onSeeAll={() => setActiveTab('courses')}
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-            {courses.slice(0, 3).map((course) => (
-              <div
-                key={course._id}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md active:scale-98 transition-all cursor-pointer group"
-              >
-                <div className="aspect-video w-full overflow-hidden bg-gray-100">
-                  <img
-                    src={course.thumbnail || 'https://via.placeholder.com/400x225'}
-                    alt={course.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                </div>
-                <div className="p-4 sm:p-5">
-                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-2 group-hover:text-purple-600 transition-colors line-clamp-2">
-                    {course.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-2">
-                    {course.description}
-                  </p>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2.5 sm:px-3 py-1 rounded-full truncate flex-1 min-w-0">
-                      {formatCategoryName(course.category)}
-                    </span>
-                    <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
-                      {course.pricing?.type === 'free' ? 'Free' : `$${course.pricing?.amount}`}
-                    </span>
+        {courses.length > 0 && (
+          <section className="mb-10 sm:mb-12 md:mb-16">
+            <SectionHeader
+              title="Mindful Courses"
+              icon="🧘"
+              onSeeAll={() => navigate('/courses')}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {courses.map(course => (
+                <div
+                  key={course._id}
+                  onClick={() => handleCourseClick(course)}
+                  className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl border border-violet-100 overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-2"
+                >
+                  <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-violet-100 to-purple-100">
+                    <img
+                      src={
+                        course.thumbnail ||
+                        'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop'
+                      }
+                      alt={course.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  </div>
+                  <div className="p-5 sm:p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <span className="text-xs font-bold text-violet-600 bg-violet-50 px-3 py-1.5 rounded-full uppercase tracking-wide">
+                        {formatCategoryName(course.category)}
+                      </span>
+                      <span className="text-lg font-bold text-gray-900">
+                        {course.pricing?.type === 'free' ? (
+                          <span className="text-green-600">Free</span>
+                        ) : (
+                          `$${course.pricing?.amount || 0}`
+                        )}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg sm:text-xl mb-2 group-hover:text-violet-600 transition-colors line-clamp-2">
+                      {course.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                      {course.description || course.shortDescription}
+                    </p>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>
+                        ⭐ {course.metrics?.rating?.average?.toFixed(1) || '0.0'}
+                      </span>
+                      <span>
+                        👥 {course.metrics?.enrollmentCount || 0} enrolled
+                      </span>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {trendingContent.length > 0 && (
+          <section className="mb-10 sm:mb-12">
+            <SectionHeader
+              title="Trending Now"
+              icon="🔥"
+              onSeeAll={() => navigate('/content')}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {trendingContent.map((content, index) => (
+                <ContentCard
+                  key={content._id || index}
+                  content={content}
+                  onClick={() => handleContentClick(content)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="mb-10 sm:mb-12">
+          <SectionHeader title="Quick Access" icon="⚡" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <Link
+              to="/content"
+              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="text-4xl">📚</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">
+                    Content Library
+                  </h3>
+                  <p className="text-sm text-gray-600">Explore all content</p>
+                </div>
+                <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" size={20} />
               </div>
-            ))}
+            </Link>
+            <Link
+              to="/content?type=audio&category=music"
+              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="text-4xl">🎵</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">
+                    Meditation Music
+                  </h3>
+                  <p className="text-sm text-gray-600">Calming tracks</p>
+                </div>
+                <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" size={20} />
+              </div>
+            </Link>
+            <Link
+              to="/favorites"
+              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="text-4xl">❤️</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">
+                    Favorites
+                  </h3>
+                  <p className="text-sm text-gray-600">{user?.activities?.favoriteContent?.length || 0} saved</p>
+                </div>
+                <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" size={20} />
+              </div>
+            </Link>
+            <Link
+              to="/recently-played"
+              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="text-4xl">⏱️</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">
+                    Recently Played
+                  </h3>
+                  <p className="text-sm text-gray-600">{user?.activities?.recentlyPlayed?.length || 0} items</p>
+                </div>
+                <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" size={20} />
+              </div>
+            </Link>
           </div>
         </section>
       </main>
 
       <style jsx>{`
         @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
-          animation: fade-in 0.2s ease-in-out;
+          animation: fade-in 0.3s ease-out;
         }
         .safe-area-bottom {
-          padding-bottom: env(safe-area-inset-bottom, 0.5rem);
-        }
-        .active\:scale-95:active {
-          transform: scale(0.95);
-        }
-        .active\:scale-98:active {
-          transform: scale(0.98);
+          padding-bottom: env(safe-area-inset-bottom, 0.75rem);
         }
       `}</style>
     </div>
