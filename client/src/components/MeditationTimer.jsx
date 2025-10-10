@@ -64,29 +64,66 @@ const MeditationTimer = () => {
 
   return (
     <>
-      {/* Floating Timer Button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className={`fixed bottom-24 right-6 z-40 group transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
+      {/* Floating Timer Button with Circular Text */}
+      <div
+        className={`fixed bottom-24 right-6 z-40 transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
         style={{ transitionDelay: isOpen ? '0ms' : '200ms' }}
       >
-        <div className="relative">
-          {/* Pulsing glow effect */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 blur-xl opacity-60 group-hover:opacity-80 animate-pulse"></div>
-          
-          {/* Main button */}
-          <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 shadow-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform">
-            <Clock className="w-7 h-7 text-white" strokeWidth={2.5} />
-          </div>
+        <div className="relative w-32 h-32 flex items-center justify-center">
+          {/* Circular Revolving Text */}
+          <svg className="absolute inset-0 w-full h-full animate-spin-slow" viewBox="0 0 128 128">
+            <defs>
+              <path
+                id="circlePath"
+                d="M 64, 64 m -52, 0 a 52,52 0 1,1 104,0 a 52,52 0 1,1 -104,0"
+              />
+            </defs>
+            <text className="text-[10px] fill-violet-600 font-bold uppercase tracking-wider">
+              <textPath href="#circlePath" startOffset="0%">
+                • Start your meditation timer • Start your meditation timer •
+              </textPath>
+            </text>
+          </svg>
 
-          {/* Active indicator */}
-          {isRunning && (
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white shadow-lg animate-pulse flex items-center justify-center">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
+          {/* Button */}
+          <button
+            onClick={() => setIsOpen(true)}
+            className="relative group"
+          >
+            <div className="relative">
+              {/* Pulsing glow effect */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 blur-xl opacity-60 group-hover:opacity-80 animate-pulse"></div>
+
+              {/* Main button */}
+              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 shadow-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform">
+                <Clock className="w-7 h-7 text-white" strokeWidth={2.5} />
+              </div>
+
+              {/* Active indicator */}
+              {isRunning && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white shadow-lg animate-pulse flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+              )}
             </div>
-          )}
+          </button>
         </div>
-      </button>
+
+        <style jsx>{`
+          @keyframes spin-slow {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+          .animate-spin-slow {
+            animation: spin-slow 15s linear infinite;
+            transform-origin: center;
+          }
+        `}</style>
+      </div>
 
       {/* Timer Panel */}
       <div

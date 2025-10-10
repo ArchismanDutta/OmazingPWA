@@ -137,46 +137,57 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ background: '#fff' }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2"
-             style={{ borderColor: ACCENT_PURPLE }}></div>
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+        <TopNavBar />
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mx-auto"></div>
+              <div
+                className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-400 rounded-full animate-spin mx-auto"
+                style={{ animationDirection: 'reverse', animationDuration: '1s' }}
+              />
+            </div>
+            <p className="mt-6 text-violet-600 font-medium">Loading your profile...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#fff' }}>
-        <div className="bg-red-100 border border-red-300 text-red-700 px-6 py-4 rounded-lg">
-          {error}
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+        <TopNavBar />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-xl">
+            {error}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-8 px-2 sm:px-0" style={{ background: '#fff' }}>
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 pb-24 md:pb-8">
+      <TopNavBar />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
+        <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
           {/* Header */}
-          <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r"
-               style={{ background: `linear-gradient(90deg, ${ACCENT_PINK} 30%, ${ACCENT_PURPLE} 100%)` }}>
-            <Link to="/dashboard"
-                  className="text-white font-semibold text-sm hover:underline"
-            >← Back</Link>
-            <h1 className="text-lg font-bold text-white tracking-wider">Profile</h1>
+          <div className="flex justify-between items-center px-6 py-5 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500">
+            <h1 className="text-2xl font-bold text-white">Profile Settings</h1>
             <button
               type="button"
               onClick={() => setIsEditing(!isEditing)}
-              className="px-4 py-1.5 rounded-md text-white font-medium shadow-sm"
+              className="px-5 py-2 rounded-xl text-white font-semibold shadow-lg transition-all duration-300 hover:-translate-y-0.5"
               style={{
-                background: isEditing ? '#e0e0e0' : ACCENT_PURPLE,
-                color: isEditing ? ACCENT_PURPLE : '#fff',
-                border: isEditing ? `1px solid ${ACCENT_PURPLE}` : 'none',
-                transition: 'background 0.2s'
+                background: isEditing ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.95)',
+                color: isEditing ? '#fff' : ACCENT_PURPLE,
+                border: isEditing ? '2px solid rgba(255, 255, 255, 0.5)' : 'none'
               }}
             >
-              {isEditing ? 'Cancel' : 'Edit'}
+              {isEditing ? 'Cancel' : 'Edit Profile'}
             </button>
           </div>
 
