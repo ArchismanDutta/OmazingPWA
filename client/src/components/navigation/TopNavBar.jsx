@@ -31,8 +31,9 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
 
   const getNavigationItems = () => {
     const items = [
-      { label: 'Dashboard', href: '/dashboard', icon: Home },
-      { label: 'Courses', href: '/courses', icon: BookOpen },
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'Courses', href: '/courses' },
+      { label: 'Content', href: '/content' },
     ];
 
     if (user) {
