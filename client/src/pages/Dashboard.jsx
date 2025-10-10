@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Home, BookOpen, Tag, User, ChevronRight, Menu, X } from 'lucide-react';
-
-// Mock Auth Context (replace with your actual context)
-const useAuth = () => ({
-  user: {
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    role: "user",
-    createdAt: "2024-01-15T10:30:00Z"
-  },
-  logout: () => console.log("Logout")
-});
+import { useAuth } from '../contexts/AuthContext';
+import VideoCarousel from '../components/VideoCarousel';
 
 // Daily meditation quotes
 const dailyQuotes = [
@@ -39,7 +31,7 @@ const dailyQuotes = [
 // Navigation Component
 const Navigation = ({ activeTab, setActiveTab }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'courses', label: 'Courses', icon: BookOpen },
@@ -81,7 +73,7 @@ const Navigation = ({ activeTab, setActiveTab }) => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
@@ -247,142 +239,6 @@ const SectionHeader = ({ title, onSeeAll }) => {
   );
 };
 
-// Video Carousel Component
-const VideoCarousel = ({ videos }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  // Auto-scroll functionality
-  useEffect(() => {
-    if (!isAutoPlaying || videos.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % videos.length);
-    }, 5000); // Change every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, videos.length]);
-
-  const extractYouTubeId = (url) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
-
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-    setIsAutoPlaying(false);
-  };
-
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + videos.length) % videos.length);
-    setIsAutoPlaying(false);
-  };
-
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % videos.length);
-    setIsAutoPlaying(false);
-  };
-
-  if (!videos || videos.length === 0) return null;
-
-  return (
-    <section className="mb-8 sm:mb-10 md:mb-12">
-      <SectionHeader 
-        title="Featured Videos" 
-        onSeeAll={() => console.log('See all videos')} 
-      />
-      
-      <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        {/* Video Container */}
-        <div className="relative aspect-video bg-gray-900 overflow-hidden">
-          {/* Videos */}
-          <div 
-            className="flex transition-transform duration-500 ease-out h-full"
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
-            {videos.map((video, index) => {
-              const videoId = extractYouTubeId(video.url);
-              return (
-                <div key={video._id || index} className="w-full flex-shrink-0 relative">
-                  {videoId ? (
-                    <iframe
-                      src={`https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0`}
-                      title={video.title}
-                      className="w-full h-full"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white">
-                      <p>Invalid video URL</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Navigation Arrows */}
-          {videos.length > 1 && (
-            <>
-              <button
-                onClick={goToPrevious}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all backdrop-blur-sm z-10"
-                aria-label="Previous video"
-              >
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={goToNext}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 sm:p-3 rounded-full transition-all backdrop-blur-sm z-10"
-                aria-label="Next video"
-              >
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Video Info */}
-        <div className="p-4 sm:p-5 md:p-6">
-          <h3 className="font-bold text-gray-900 text-base sm:text-lg md:text-xl mb-2">
-            {videos[currentIndex]?.title}
-          </h3>
-          {videos[currentIndex]?.description && (
-            <p className="text-sm sm:text-base text-gray-600 mb-4 line-clamp-2">
-              {videos[currentIndex].description}
-            </p>
-          )}
-
-          {/* Dots Navigation */}
-          {videos.length > 1 && (
-            <div className="flex items-center justify-center space-x-2 mt-4">
-              {videos.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  className={`transition-all rounded-full ${
-                    index === currentIndex
-                      ? 'w-8 h-2 bg-purple-600'
-                      : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
-                  }`}
-                  aria-label={`Go to video ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-};
-
 // Main Dashboard Component
 const Dashboard = () => {
   const { user } = useAuth();
@@ -392,7 +248,6 @@ const Dashboard = () => {
   const [recommendedContent, setRecommendedContent] = useState([]);
   const [meditationMusic, setMeditationMusic] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [featuredVideos, setFeaturedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Get random daily quote on mount
@@ -406,14 +261,14 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch courses for categories (using course categories as content categories)
         const coursesRes = await fetch('/api/courses?limit=6');
         const coursesData = await coursesRes.json();
-        
+
         if (coursesData.success) {
           setCourses(coursesData.data);
-          
+
           // Create categories from course data
           const categoryMap = new Map();
           coursesData.data.forEach(course => {
@@ -428,14 +283,14 @@ const Dashboard = () => {
               categoryMap.get(cat).count++;
             }
           });
-          
+
           setCategories(Array.from(categoryMap.values()).slice(0, 6));
         }
 
         // Fetch recommended content (audio content)
         const contentRes = await fetch('/api/content/public?type=audio&limit=3');
         const contentData = await contentRes.json();
-        
+
         if (contentData.success) {
           setRecommendedContent(contentData.data.map(item => ({
             title: item.title,
@@ -447,7 +302,7 @@ const Dashboard = () => {
         // Fetch meditation music (audio content from music category)
         const musicRes = await fetch('/api/content/public?type=audio&category=music&limit=3');
         const musicData = await musicRes.json();
-        
+
         if (musicData.success) {
           setMeditationMusic(musicData.data.map(item => ({
             title: item.title,
@@ -467,13 +322,13 @@ const Dashboard = () => {
           { name: 'Calm', count: 12, image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=100&h=100&fit=crop' },
           { name: 'Energy', count: 22, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=100&fit=crop' }
         ]);
-        
+
         setRecommendedContent([
           { title: 'Mindfulness', description: 'Practice and develop mindfulness', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100&h=100&fit=crop' },
           { title: 'Relaxing Sounds', description: 'Calm your mind and body', image: 'https://images.unsplash.com/photo-1511295742362-92c96b1cf484?w=100&h=100&fit=crop' },
           { title: 'Focus Booster', description: 'Improve your attention span', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100&h=100&fit=crop' }
         ]);
-        
+
         setMeditationMusic([
           { title: 'Deep Sleep', description: 'Sleep better with guided sessions', image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=100&h=100&fit=crop' },
           { title: 'Focus Boost', description: 'Increase concentration with sounds', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100&h=100&fit=crop' },
@@ -510,7 +365,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         {/* Welcome Section */}
         <WelcomeSection userName={user?.name} />
@@ -518,11 +373,16 @@ const Dashboard = () => {
         {/* Daily Quote */}
         <DailyQuote quote={dailyQuote} />
 
+        {/* Video Carousel - Integrated from incoming branch */}
+        <div className="mb-8 sm:mb-10 md:mb-12">
+          <VideoCarousel />
+        </div>
+
         {/* Explore by Categories */}
         <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader 
-            title="Explore by Categories" 
-            onSeeAll={() => console.log('See all categories')} 
+          <SectionHeader
+            title="Explore by Categories"
+            onSeeAll={() => console.log('See all categories')}
           />
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
             {categories.map((category, index) => (
@@ -535,11 +395,69 @@ const Dashboard = () => {
           </div>
         </section>
 
+        {/* Quick Access Links */}
+        <section className="mb-8 sm:mb-10 md:mb-12">
+          <SectionHeader title="Quick Access" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <Link
+              to="/content"
+              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md active:scale-98 transition-all group"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">📚</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors">Content Library</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Explore all content</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              to="/content?type=audio&category=music"
+              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md active:scale-98 transition-all group"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">🎵</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors">Meditation Music</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Calming tracks</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              to="/favorites"
+              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md active:scale-98 transition-all group"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">❤️</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors">Favorites</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">{user?.activities?.favoriteContent?.length || 0} saved items</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              to="/recently-played"
+              className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md active:scale-98 transition-all group"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">⏱️</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base group-hover:text-purple-600 transition-colors">Recently Played</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">{user?.activities?.recentlyPlayed?.length || 0} recent items</p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+
         {/* Recommended for You */}
         <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader 
-            title="Recommended for You" 
-            onSeeAll={() => console.log('See all recommendations')} 
+          <SectionHeader
+            title="Recommended for You"
+            onSeeAll={() => console.log('See all recommendations')}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {recommendedContent.map((content, index) => (
@@ -554,9 +472,9 @@ const Dashboard = () => {
 
         {/* Meditation Music for You */}
         <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader 
-            title="Meditation Music for You" 
-            onSeeAll={() => console.log('See all music')} 
+          <SectionHeader
+            title="Meditation Music for You"
+            onSeeAll={() => console.log('See all music')}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {meditationMusic.map((music, index) => (
@@ -571,9 +489,9 @@ const Dashboard = () => {
 
         {/* Mindful Courses */}
         <section className="mb-8 sm:mb-10 md:mb-12">
-          <SectionHeader 
-            title="Mindful Courses" 
-            onSeeAll={() => setActiveTab('courses')} 
+          <SectionHeader
+            title="Mindful Courses"
+            onSeeAll={() => setActiveTab('courses')}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {courses.slice(0, 3).map((course) => (

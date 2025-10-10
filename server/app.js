@@ -81,6 +81,9 @@ app.use("/api/v1/admin", require("./routes/admin"));
 // Payment routes
 app.use("/api/v1/payments", require("./routes/payment"));
 
+// Video carousel routes
+app.use("/api/v1/carousel", require("./routes/videoCarousel"));
+
 // Sample protected route accessible by authenticated users only
 app.get("/api/v1/user/dashboard", authMiddleware, async (req, res) => {
   try {

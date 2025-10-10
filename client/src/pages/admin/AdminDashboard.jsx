@@ -163,6 +163,13 @@ const AdminDashboard = () => {
                   <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🎓</div>
                   <div className="text-sm font-medium text-gray-300 group-hover:text-white">Manage Courses</div>
                 </Link>
+                <Link
+                  to="/admin/videos"
+                  className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center"
+                >
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🎥</div>
+                  <div className="text-sm font-medium text-gray-300 group-hover:text-white">Manage Videos</div>
+                </Link>
                 <button className="group p-6 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-200 text-center">
                   <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">⚙️</div>
                   <div className="text-sm font-medium text-gray-300 group-hover:text-white">Settings</div>

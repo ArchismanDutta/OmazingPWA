@@ -10,6 +10,9 @@ const { body } = require('express-validator');
 // Import course controllers
 const adminCourseController = require('../controllers/adminCourseController');
 
+// Import video carousel controller
+const videoCarouselController = require('../controllers/videoCarouselController');
+
 router.get("/dashboard", authMiddleware, roleMiddleware(["admin"]), async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -500,6 +503,14 @@ router.post(
     }
   }
 );
+
+// Video Carousel Management Routes
+router.get("/videos", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.getAllVideosAdmin);
+router.get("/videos/:id", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.getVideoById);
+router.post("/videos", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.createVideo);
+router.put("/videos/:id", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.updateVideo);
+router.delete("/videos/:id", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.deleteVideo);
+router.put("/videos/:id/toggle", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.toggleVideoStatus);
 
 // Note: Content management routes are handled by /api/v1/content routes
 // This keeps admin routes focused on user management and dashboard analytics

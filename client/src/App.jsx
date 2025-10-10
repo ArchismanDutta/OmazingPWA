@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
@@ -17,6 +18,7 @@ import AdminCourses from './pages/admin/AdminCourses';
 import AdminCourseNew from './pages/admin/AdminCourseNew';
 import AdminCourseEdit from './pages/admin/AdminCourseEdit';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminVideos from './pages/admin/AdminVideos';
 import MediaPlayerDebug from './components/media/MediaPlayerDebug';
 import { getDefaultRouteForUser } from './utils/navigation';
 
@@ -37,25 +39,31 @@ function AppContent() {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Navigate to="/login" replace />
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Login />
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Register />
-        }
-      />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Navigate to="/onboarding" replace />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Login />
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Onboarding />
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Register />
+          }
+        />
       <Route
         path="/dashboard"
         element={
@@ -141,6 +149,14 @@ function AppContent() {
         }
       />
       <Route
+        path="/admin/videos"
+        element={
+          <ProtectedRoute adminOnly>
+            <AdminVideos />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/debug/media"
         element={<MediaPlayerDebug />}
       />
@@ -166,7 +182,7 @@ function AppContent() {
           </div>
         }
       />
-    </Routes>
+      </Routes>
   );
 }
 
