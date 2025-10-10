@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { contentAPI } from '../api/content';
+import { userAPI } from '../api/user';
 import TopNavBar from '../components/navigation/TopNavBar';
 import Breadcrumbs from '../components/navigation/Breadcrumbs';
 
 const RecentlyPlayed = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [recentContent, setRecentContent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
     fetchRecentlyPlayed();
@@ -102,6 +104,33 @@ const RecentlyPlayed = () => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleClearHistory = async () => {
+    if (!confirm('Are you sure you want to clear your recently played history?')) {
+      return;
+    }
+
+    try {
+      setIsClearing(true);
+      await userAPI.clearRecentlyPlayed();
+
+      // Refresh user data to update the UI
+      if (refreshUser) {
+        await refreshUser();
+      }
+
+      // Clear local state
+      setRecentContent([]);
+
+      // Show success message
+      alert('Recently played history cleared successfully!');
+    } catch (error) {
+      console.error('Failed to clear recently played history:', error);
+      setError('Failed to clear history. Please try again.');
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   const ContentCard = ({ item }) => (
@@ -278,15 +307,11 @@ const RecentlyPlayed = () => {
             {/* Clear History Option */}
             <div className="mt-12 text-center">
               <button
-                onClick={() => {
-                  if (confirm('Are you sure you want to clear your recently played history?')) {
-                    // Implement clear history functionality if needed
-                    console.log('Clear history functionality would go here');
-                  }
-                }}
-                className="text-red-600 hover:text-red-700 text-sm transition-colors px-4 py-2 rounded-lg hover:bg-red-50 border border-red-200 font-medium"
+                onClick={handleClearHistory}
+                disabled={isClearing}
+                className="text-red-600 hover:text-red-700 text-sm transition-colors px-4 py-2 rounded-lg hover:bg-red-50 border border-red-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Clear History
+                {isClearing ? 'Clearing...' : 'Clear History'}
               </button>
             </div>
           </>

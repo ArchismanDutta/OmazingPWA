@@ -87,33 +87,48 @@ const Courses = () => {
       .join(' ');
   };
 
-  const CourseCard = ({ course }) => (
-    <Link
-      to={`/courses/${course._id}`}
-      className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl border border-violet-100 overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-2"
-    >
-      <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-violet-100 to-purple-100">
-        <img
-          src={course.thumbnail || 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop'}
-          alt={course.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+  const CourseCard = ({ course }) => {
+    const isPaidCourse = course.pricing?.type !== 'free';
+    const isLocked = isPaidCourse && !course.hasAccess;
 
-        {course.pricing?.type === 'premium' && (
-          <div className="absolute top-3 right-3">
-            <span className="bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-md">
-              Premium
+    return (
+      <Link
+        to={`/courses/${course._id}`}
+        className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl border border-violet-100 overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-2"
+      >
+        <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-violet-100 to-purple-100">
+          <img
+            src={course.thumbnail || 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop'}
+            alt={course.title}
+            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isLocked ? 'opacity-60' : ''}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+          {/* Lock Icon Overlay for Locked Courses */}
+          {isLocked && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-xl">
+                <svg className="w-12 h-12 text-violet-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+                </svg>
+              </div>
+            </div>
+          )}
+
+          {course.pricing?.type === 'premium' && (
+            <div className="absolute top-3 right-3">
+              <span className="bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-md">
+                Premium
+              </span>
+            </div>
+          )}
+
+          <div className="absolute top-3 left-3">
+            <span className="text-xs px-3 py-1.5 rounded-full font-bold bg-white/95 text-violet-700 backdrop-blur-sm">
+              {course.level?.charAt(0).toUpperCase() + course.level?.slice(1)}
             </span>
           </div>
-        )}
-
-        <div className="absolute top-3 left-3">
-          <span className="text-xs px-3 py-1.5 rounded-full font-bold bg-white/95 text-violet-700 backdrop-blur-sm">
-            {course.level?.charAt(0).toUpperCase() + course.level?.slice(1)}
-          </span>
         </div>
-      </div>
 
       <div className="p-5 sm:p-6">
         <div className="flex items-center justify-between mb-3">
@@ -165,9 +180,22 @@ const Courses = () => {
             👥 {course.metrics?.enrollmentCount || 0} enrolled
           </span>
         </div>
+
+        {/* Lock Status Badge */}
+        {isLocked && (
+          <div className="mt-4 pt-3 border-t border-red-100">
+            <div className="flex items-center justify-center space-x-2 text-red-600">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd"/>
+              </svg>
+              <span className="text-xs font-bold">Enroll to unlock</span>
+            </div>
+          </div>
+        )}
       </div>
     </Link>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 pb-24 md:pb-8">

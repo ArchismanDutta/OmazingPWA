@@ -62,6 +62,11 @@ export const userAPI = {
       body: JSON.stringify({ contentId, duration }),
     }),
 
+  clearRecentlyPlayed: () =>
+    apiRequest('/user/recently-played', {
+      method: 'DELETE',
+    }),
+
   getUserStats: () =>
     apiRequest('/user/stats'),
 
