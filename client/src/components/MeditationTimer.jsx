@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Clock, Play, Pause, RotateCcw, X } from 'lucide-react';
+import { userAPI } from '../api/user';
+import { useAuth } from '../contexts/AuthContext';
 
 const MeditationTimer = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
   const [sessions, setSessions] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -45,10 +49,10 @@ const MeditationTimer = () => {
     setIsRunning(false);
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setIsRunning(false);
-    if (time > 0) {
-      // Save session
+    if (time > 0 && user) {
+      // Save session locally
       const newSession = {
         id: Date.now(),
         duration: time,
@@ -56,6 +60,23 @@ const MeditationTimer = () => {
         timestamp: new Date().toLocaleString()
       };
       setSessions(prev => [newSession, ...prev].slice(0, 10)); // Keep last 10 sessions
+
+      // Save session to backend
+      try {
+        setIsSaving(true);
+        const minutes = Math.floor(time / 60);
+        await userAPI.updateMindfulnessSession({
+          duration: time, // in seconds
+          minutes: minutes, // in minutes
+          completedAt: new Date().toISOString()
+        });
+        console.log('Meditation session saved successfully');
+      } catch (error) {
+        console.error('Failed to save meditation session:', error);
+        // You could add a toast notification here to inform the user
+      } finally {
+        setIsSaving(false);
+      }
     }
     setTime(0);
   };
@@ -246,12 +267,16 @@ const MeditationTimer = () => {
 
                   <button
                     onClick={handleReset}
-                    disabled={time === 0}
+                    disabled={time === 0 || isSaving}
                     className="group relative w-16 h-16 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 blur-md opacity-50 group-hover:opacity-70 transition-opacity"></div>
                     <div className="relative flex items-center justify-center">
-                      <RotateCcw className="w-6 h-6 text-white" />
+                      {isSaving ? (
+                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <RotateCcw className="w-6 h-6 text-white" />
+                      )}
                     </div>
                   </button>
                 </div>
