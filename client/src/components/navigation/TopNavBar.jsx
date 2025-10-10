@@ -44,7 +44,7 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
       );
 
       if (user.role === 'admin') {
-        items.push({ label: 'Admin', href: '/admin' });
+        items.push({ label: 'Admin', href: '/admin/users' });
       }
     }
 
@@ -162,7 +162,7 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
                 {/* Admin Panel Link for Admins */}
                 {isAdminUser(user) && (
                   <Link
-                    to="/admin"
+                    to="/admin/users"
                     onClick={() => setShowMobileSidebar(false)}
                     className="w-full flex items-center px-4 py-3 mb-3 text-sm font-medium text-red-300 rounded-xl hover:text-red-200 hover:bg-red-500/10 transition-all duration-200 group border border-red-500/30"
                   >
@@ -222,7 +222,7 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
               )}
 
               <Link
-                to={isAdminPage ? "/admin" : "/dashboard"}
+                to={isAdminPage ? "/admin/users" : "/dashboard"}
                 className="flex items-center space-x-3 group"
               >
                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform ${
@@ -367,7 +367,7 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
                           <>
                             {!currentPath.startsWith('/admin') ? (
                               <Link
-                                to="/admin"
+                                to="/admin/users"
                                 className="flex items-center space-x-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-b border-violet-100"
                                 onClick={() => setShowUserMenu(false)}
                               >
@@ -439,7 +439,7 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
                           <>
                             <div className="border-t border-violet-100 my-2"></div>
                             <Link
-                              to="/admin"
+                              to="/admin/users"
                               className="flex items-center space-x-3 px-4 py-3 text-sm text-violet-600 hover:bg-violet-50 hover:text-violet-700 transition-colors"
                               onClick={() => setShowUserMenu(false)}
                             >
