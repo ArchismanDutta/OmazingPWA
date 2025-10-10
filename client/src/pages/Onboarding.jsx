@@ -62,18 +62,18 @@ const Onboarding = () => {
   const step = onboardingSteps[currentStep];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Animated background elements */}
-      <div className="absolute top-20 left-10 w-64 h-64 bg-violet-200/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+      <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-40 h-40 sm:w-64 sm:h-64 bg-violet-200/30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-56 h-56 sm:w-96 sm:h-96 bg-purple-200/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-pink-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
 
       <div className="w-full max-w-5xl relative z-10">
         {/* Skip button */}
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-3 sm:mb-4">
           <button
             onClick={handleSkip}
-            className="text-gray-500 hover:text-gray-700 transition-colors text-sm font-bold px-4 py-2 rounded-lg hover:bg-white/50"
+            className="text-gray-500 hover:text-gray-700 transition-colors text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-white/50"
           >
             Skip
           </button>
@@ -81,45 +81,45 @@ const Onboarding = () => {
 
         {/* Main content card */}
         <div className="relative group animate-fade-in">
-          <div className="absolute inset-0 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 rounded-3xl blur-2xl opacity-30 group-hover:opacity-40 transition-opacity"></div>
-          <div className="relative bg-white rounded-3xl p-8 sm:p-12 lg:p-16 border border-violet-100 shadow-2xl space-y-10">
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl opacity-30 group-hover:opacity-40 transition-opacity"></div>
+          <div className="relative bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-12 xl:p-16 border border-violet-100 shadow-2xl space-y-6 sm:space-y-8 lg:space-y-10">
             {/* Progress indicators */}
-            <div className="flex justify-center space-x-3">
+            <div className="flex justify-center space-x-2 sm:space-x-3">
               {onboardingSteps.map((_, index) => (
                 <div
                   key={index}
-                  className={`h-2.5 rounded-full transition-all duration-500 ${
+                  className={`h-2 sm:h-2.5 rounded-full transition-all duration-500 ${
                     index === currentStep
-                      ? 'w-12 bg-gradient-to-r from-violet-500 to-purple-600 shadow-lg'
+                      ? 'w-10 sm:w-12 bg-gradient-to-r from-violet-500 to-purple-600 shadow-lg'
                       : index < currentStep
-                      ? 'w-2.5 bg-violet-300'
-                      : 'w-2.5 bg-gray-200'
+                      ? 'w-2 sm:w-2.5 bg-violet-300'
+                      : 'w-2 sm:w-2.5 bg-gray-200'
                   }`}
                 />
               ))}
             </div>
 
             {/* Content container */}
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
               {/* Image/Illustration side */}
               <div className="flex justify-center lg:justify-start order-2 lg:order-1">
-                <div className="relative">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${step.gradient} rounded-full blur-3xl opacity-40 animate-pulse`}></div>
-                  <div className={`relative w-72 h-72 sm:w-96 sm:h-96 rounded-3xl bg-gradient-to-br ${step.bgGradient} flex flex-col items-center justify-center shadow-2xl transition-all duration-700 animate-scale-in`}>
-                    <div className="text-9xl mb-6 animate-bounce-slow">
+                <div className="relative w-full max-w-sm">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${step.gradient} rounded-full blur-2xl sm:blur-3xl opacity-40 animate-pulse`}></div>
+                  <div className={`relative w-full aspect-square max-w-[280px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[400px] mx-auto rounded-2xl sm:rounded-3xl bg-gradient-to-br ${step.bgGradient} flex flex-col items-center justify-center shadow-2xl transition-all duration-700 animate-scale-in px-4 sm:px-6 py-6 sm:py-8`}>
+                    <div className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl mb-4 sm:mb-6 animate-bounce-slow">
                       {step.emoji}
                     </div>
-                    <div className="space-y-3 px-6">
+                    <div className="space-y-2 sm:space-y-3 w-full">
                       {step.features.map((feature, index) => (
                         <div
                           key={index}
-                          className="flex items-center space-x-3 text-gray-700 animate-slide-in"
+                          className="flex items-center space-x-2 sm:space-x-3 text-gray-700 animate-slide-in"
                           style={{animationDelay: `${index * 0.2}s`}}
                         >
-                          <div className="w-8 h-8 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center shadow-md">
-                            <span className="text-sm">✓</span>
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center shadow-md">
+                            <span className="text-xs sm:text-sm">✓</span>
                           </div>
-                          <span className="text-sm font-medium">{feature}</span>
+                          <span className="text-xs sm:text-sm font-medium line-clamp-1">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -128,65 +128,65 @@ const Onboarding = () => {
               </div>
 
               {/* Text content side */}
-              <div className="space-y-6 order-1 lg:order-2 animate-fade-in">
+              <div className="space-y-4 sm:space-y-6 order-1 lg:order-2 animate-fade-in">
                 <div className="inline-block">
-                  <span className="text-sm font-bold text-violet-600 bg-violet-100 px-4 py-2 rounded-full">
+                  <span className="text-xs sm:text-sm font-bold text-violet-600 bg-violet-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
                     Step {currentStep + 1} of {onboardingSteps.length}
                   </span>
                 </div>
-                
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent leading-tight">
+
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent leading-tight">
                   {step.title}
                 </h1>
-                
-                <p className="text-gray-600 text-lg sm:text-xl leading-relaxed">
+
+                <p className="text-gray-600 text-sm sm:text-base lg:text-lg xl:text-xl leading-relaxed">
                   {step.description}
                 </p>
 
                 {/* Navigation buttons */}
                 {currentStep < onboardingSteps.length - 1 ? (
-                  <div className="flex items-center space-x-4 pt-4">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 sm:pt-4">
                     {currentStep > 0 && (
                       <button
                         onClick={handlePrevious}
-                        className="flex items-center space-x-2 px-6 py-3 rounded-xl font-bold transition-all text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        className="flex items-center space-x-1.5 sm:space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold transition-all text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm sm:text-base"
                       >
-                        <ChevronLeft size={20} />
+                        <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
                         <span>Back</span>
                       </button>
                     )}
 
                     <button
                       onClick={handleNext}
-                      className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                      className="flex items-center space-x-1.5 sm:space-x-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 text-sm sm:text-base"
                     >
                       <span>Continue</span>
-                      <ChevronRight size={20} />
+                      <ChevronRight size={18} className="sm:w-5 sm:h-5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4 pt-4">
+                  <div className="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
                     {currentStep > 0 && (
                       <button
                         onClick={handlePrevious}
-                        className="flex items-center space-x-2 px-6 py-3 rounded-xl font-bold transition-all text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        className="flex items-center space-x-1.5 sm:space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold transition-all text-gray-600 hover:text-gray-900 hover:bg-gray-100 text-sm sm:text-base"
                       >
-                        <ChevronLeft size={20} />
+                        <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
                         <span>Back</span>
                       </button>
                     )}
 
-                    <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                       <button
                         onClick={handleComplete}
-                        className="px-8 py-4 flex-1 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                        className="px-6 sm:px-8 py-3 sm:py-4 flex-1 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
                       >
                         Start Your Journey
                       </button>
 
                       <button
                         onClick={handleLogin}
-                        className="px-8 py-4 flex-1 rounded-xl font-bold text-lg text-gray-700 bg-white hover:bg-gray-50 transition-all border-2 border-violet-200 hover:border-violet-300 shadow-md hover:shadow-lg"
+                        className="px-6 sm:px-8 py-3 sm:py-4 flex-1 rounded-xl font-bold text-base sm:text-lg text-gray-700 bg-white hover:bg-gray-50 transition-all border-2 border-violet-200 hover:border-violet-300 shadow-md hover:shadow-lg"
                       >
                         I Have an Account
                       </button>
@@ -199,11 +199,11 @@ const Onboarding = () => {
         </div>
 
         {/* Mindful quote at bottom */}
-        <div className="text-center mt-8 animate-fade-in">
-          <p className="text-gray-500 text-sm italic">
+        <div className="text-center mt-6 sm:mt-8 animate-fade-in px-4">
+          <p className="text-gray-500 text-xs sm:text-sm italic">
             "The present moment is filled with joy and happiness. If you are attentive, you will see it."
           </p>
-          <p className="text-gray-400 text-xs mt-1">— Thích Nhất Hạnh</p>
+          <p className="text-gray-400 text-[10px] sm:text-xs mt-1">— Thích Nhất Hạnh</p>
         </div>
       </div>
 
