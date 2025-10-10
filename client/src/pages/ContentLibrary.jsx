@@ -4,6 +4,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { contentAPI } from '../api/content';
 import TopNavBar from '../components/navigation/TopNavBar';
 import Breadcrumbs from '../components/navigation/Breadcrumbs';
+import image from '../assets/image.png';
+import audio from '../assets/audio.png';
+import video from '../assets/video.png';
+import document from '../assets/document.png';
 
 const ContentLibrary = () => {
   const { user } = useAuth();
@@ -71,14 +75,19 @@ const ContentLibrary = () => {
   };
 
   const getContentIcon = (type) => {
-    switch (type) {
-      case 'audio': return '🎵';
-      case 'video': return '🎥';
-      case 'image': return '🖼️';
-      case 'document': return '📄';
-      default: return '📁';
-    }
-  };
+  switch (type) {
+    case 'audio':
+      return <img src={audio} alt="Audio" className="w-8 h-8" />;
+    case 'video':
+      return <img src={video} alt="Video" className="w-8 h-8" />;
+    case 'image':
+      return <img src={image} alt="Image" className="w-8 h-8" />;
+    case 'document':
+      return <img src={document} alt="Image" className="w-8 h-8" />;
+    default:
+      return <span className="text-2xl">📁</span>;
+  }
+};
 
   const ContentCard = ({ item }) => (
     <Link
