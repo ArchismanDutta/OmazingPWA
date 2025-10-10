@@ -7,6 +7,7 @@ import TopNavBar from '../components/navigation/TopNavBar';
 import MeditationTimer from '../components/MeditationTimer';
 import { contentAPI } from '../api/content';
 import { coursesAPI } from '../api/courses';
+import med1Image from '../assets/med1.png';
 
 const dailyQuotes = [
   {
@@ -85,8 +86,12 @@ const DailyQuote = ({ quote }) => (
           )}
         </div>
         <div className="hidden lg:block flex-shrink-0">
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-violet-400 via-purple-400 to-pink-400 shadow-2xl shadow-violet-500/40 flex items-center justify-center">
-            <span className="text-4xl">🧘</span>
+          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full shadow-2xl shadow-violet-500/40 overflow-hidden">
+            <img
+              src={med1Image}
+              alt="Meditation"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </div>
