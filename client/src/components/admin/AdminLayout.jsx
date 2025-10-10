@@ -14,7 +14,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Courses', href: '/admin/courses', icon: '🎓' },
     { name: 'Content', href: '/admin/content', icon: '🎵' },
     { name: 'Videos', href: '/admin/videos', icon: '🎥' },
-    { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
+    // { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
   ];
 
   const handleLogout = async () => {

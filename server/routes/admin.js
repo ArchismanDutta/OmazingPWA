@@ -84,11 +84,12 @@ router.get("/users", authMiddleware, roleMiddleware(["admin"]), async (req, res)
 
     res.json({
       success: true,
-      users,
+      data: users,
       pagination: {
         currentPage: page,
         totalPages,
-        totalUsers,
+        totalItems: totalUsers,
+        itemsPerPage: limit,
         hasNext: page < totalPages,
         hasPrev: page > 1
       }
@@ -128,7 +129,7 @@ router.get("/users/:id", authMiddleware, roleMiddleware(["admin"]), async (req, 
 
 router.put("/users/:id", authMiddleware, roleMiddleware(["admin"]), async (req, res) => {
   try {
-    const { name, email, role, subscription, isEmailVerified } = req.body;
+    const { name, email, role, subscription, subscriptionType, isEmailVerified } = req.body;
 
     const updateData = {
       name,
@@ -137,9 +138,13 @@ router.put("/users/:id", authMiddleware, roleMiddleware(["admin"]), async (req, 
       isEmailVerified
     };
 
+    // Handle both subscription object and subscriptionType string
     if (subscription) {
       updateData["subscription.type"] = subscription.type;
       updateData["subscription.status"] = subscription.status || "active";
+    } else if (subscriptionType) {
+      updateData["subscription.type"] = subscriptionType;
+      updateData["subscription.status"] = "active";
     }
 
     const user = await User.findByIdAndUpdate(
@@ -158,7 +163,7 @@ router.put("/users/:id", authMiddleware, roleMiddleware(["admin"]), async (req, 
     res.json({
       success: true,
       message: "User updated successfully",
-      user
+      data: user
     });
   } catch (error) {
     console.error("Update user error:", error);

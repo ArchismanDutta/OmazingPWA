@@ -19,50 +19,19 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Mock data for now since backend endpoints might not exist yet
-      const mockUsers = {
-        users: [
-          {
-            _id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-            role: 'user',
-            subscription: { type: 'premium', status: 'active' },
-            mindfulness: { totalSessions: 45, totalMinutes: 1200 },
-            createdAt: '2024-01-15T08:00:00Z',
-            isEmailVerified: true
-          },
-          {
-            _id: '2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            role: 'user',
-            subscription: { type: 'free', status: 'active' },
-            mindfulness: { totalSessions: 23, totalMinutes: 690 },
-            createdAt: '2024-02-10T10:30:00Z',
-            isEmailVerified: true
-          },
-          {
-            _id: '3',
-            name: 'Mike Johnson',
-            email: 'mike@example.com',
-            role: 'manager',
-            subscription: { type: 'premium', status: 'active' },
-            mindfulness: { totalSessions: 78, totalMinutes: 2340 },
-            createdAt: '2024-01-05T14:20:00Z',
-            isEmailVerified: false
-          }
-        ],
-        totalUsers: 247,
-        totalPages: 13,
-        currentPage: 1
-      };
+      const response = await adminAPI.getAllUsers(currentPage, 20, search);
 
-      setUsers(mockUsers.users);
-      setTotalUsers(mockUsers.totalUsers);
-      setTotalPages(mockUsers.totalPages);
+      if (response.success) {
+        setUsers(response.data || []);
+        setTotalUsers(response.pagination?.totalItems || 0);
+        setTotalPages(response.pagination?.totalPages || 1);
+      } else {
+        console.error('Failed to fetch users:', response.message);
+        setUsers([]);
+      }
     } catch (error) {
       console.error('Failed to fetch users:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -75,25 +44,36 @@ const AdminUsers = () => {
 
   const handleUpdateUser = async (updatedData) => {
     try {
-      // Mock update
-      setUsers(users.map(user =>
-        user._id === selectedUser._id
-          ? { ...user, ...updatedData }
-          : user
-      ));
-      setShowModal(false);
-      setSelectedUser(null);
+      const response = await adminAPI.updateUser(selectedUser._id, updatedData);
+
+      if (response.success) {
+        // Refresh the users list to get updated data
+        await fetchUsers();
+        setShowModal(false);
+        setSelectedUser(null);
+      } else {
+        alert('Failed to update user: ' + (response.message || 'Unknown error'));
+      }
     } catch (error) {
       console.error('Failed to update user:', error);
+      alert('Failed to update user. Please try again.');
     }
   };
 
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        setUsers(users.filter(user => user._id !== userId));
+        const response = await adminAPI.deleteUser(userId);
+
+        if (response.success) {
+          // Refresh the users list after deletion
+          await fetchUsers();
+        } else {
+          alert('Failed to delete user: ' + (response.message || 'Unknown error'));
+        }
       } catch (error) {
         console.error('Failed to delete user:', error);
+        alert('Failed to delete user. Please try again.');
       }
     }
   };
@@ -209,15 +189,15 @@ const AdminUsers = () => {
                       <div>
                         <span className="text-gray-400">Subscription:</span>
                         <div className="mt-1">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSubscriptionBadgeColor(user.subscription.type)}`}>
-                            {user.subscription.type}
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSubscriptionBadgeColor(user.subscription?.type || 'free')}`}>
+                            {user.subscription?.type || 'free'}
                           </span>
                         </div>
                       </div>
                       <div>
                         <span className="text-gray-400">Sessions:</span>
-                        <div className="text-white font-medium">{user.mindfulness.totalSessions}</div>
-                        <div className="text-xs text-gray-400">{Math.floor(user.mindfulness.totalMinutes / 60)}h {user.mindfulness.totalMinutes % 60}m</div>
+                        <div className="text-white font-medium">{user.mindfulness?.totalSessions || 0}</div>
+                        <div className="text-xs text-gray-400">{Math.floor((user.mindfulness?.totalMinutes || 0) / 60)}h {(user.mindfulness?.totalMinutes || 0) % 60}m</div>
                       </div>
                       <div>
                         <span className="text-gray-400">Status:</span>
@@ -300,13 +280,13 @@ const AdminUsers = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSubscriptionBadgeColor(user.subscription.type)}`}>
-                          {user.subscription.type}
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSubscriptionBadgeColor(user.subscription?.type || 'free')}`}>
+                          {user.subscription?.type || 'free'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-white font-medium">{user.mindfulness.totalSessions} sessions</div>
-                        <div className="text-sm text-gray-400">{Math.floor(user.mindfulness.totalMinutes / 60)}h {user.mindfulness.totalMinutes % 60}m</div>
+                        <div className="text-sm text-white font-medium">{user.mindfulness?.totalSessions || 0} sessions</div>
+                        <div className="text-sm text-gray-400">{Math.floor((user.mindfulness?.totalMinutes || 0) / 60)}h {(user.mindfulness?.totalMinutes || 0) % 60}m</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                         {new Date(user.createdAt).toLocaleDateString()}
@@ -382,8 +362,8 @@ const UserEditModal = ({ user, onSave, onClose }) => {
     name: user.name,
     email: user.email,
     role: user.role,
-    subscriptionType: user.subscription.type,
-    isEmailVerified: user.isEmailVerified
+    subscriptionType: user.subscription?.type || 'free',
+    isEmailVerified: user.isEmailVerified || false
   });
 
   const handleSubmit = (e) => {
