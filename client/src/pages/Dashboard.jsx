@@ -60,12 +60,20 @@ const Dashboard = () => {
               <p className="text-white/70 mb-6 leading-relaxed">
                 Structured learning paths for personal growth
               </p>
-              <Link
-                to="/courses"
-                className="btn-secondary w-full text-center"
-              >
-                Browse Courses
-              </Link>
+              <div className="space-y-3">
+                <Link
+                  to="/my-courses"
+                  className="btn-primary w-full text-center block"
+                >
+                  My Courses
+                </Link>
+                <Link
+                  to="/courses"
+                  className="btn-secondary w-full text-center block"
+                >
+                  Browse Courses
+                </Link>
+              </div>
             </div>
 
             <div className="card-glass hover-lift p-8 group sm:col-span-2 lg:col-span-1 animate-slide-up" style={{animationDelay: '0.2s'}}>

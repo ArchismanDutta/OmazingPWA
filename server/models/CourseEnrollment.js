@@ -334,7 +334,7 @@ courseEnrollmentSchema.statics.getUserEnrollments = function(userId, status = nu
   }
 
   return this.find(query)
-    .populate('courseId', 'title description thumbnail instructor category level metrics pricing')
+    .populate('courseId') // Populate full course including modules and lessons
     .sort({ lastAccessedAt: -1, enrolledAt: -1 });
 };
 
