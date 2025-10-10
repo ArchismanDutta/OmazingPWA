@@ -23,6 +23,7 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
     const items = [
       { label: 'Dashboard', href: '/dashboard' },
       { label: 'Courses', href: '/courses' },
+      { label: 'Content', href: '/content' },
     ];
 
     if (user) {

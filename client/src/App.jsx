@@ -20,6 +20,9 @@ import AdminCourseNew from './pages/admin/AdminCourseNew';
 import AdminCourseEdit from './pages/admin/AdminCourseEdit';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminVideos from './pages/admin/AdminVideos';
+import AdminContent from './pages/admin/AdminContent';
+import ContentLibrary from './pages/ContentLibrary';
+import ContentDetail from './pages/ContentDetail';
 import MediaPlayerDebug from './components/media/MediaPlayerDebug';
 import { getDefaultRouteForUser } from './utils/navigation';
 
@@ -110,6 +113,14 @@ function AppContent() {
         element={<LessonView />}
       />
       <Route
+        path="/content"
+        element={<ContentLibrary />}
+      />
+      <Route
+        path="/content/:id"
+        element={<ContentDetail />}
+      />
+      <Route
         path="/admin"
         element={
           <ProtectedRoute adminOnly>
@@ -162,6 +173,14 @@ function AppContent() {
         element={
           <ProtectedRoute adminOnly>
             <AdminVideos />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/content"
+        element={
+          <ProtectedRoute adminOnly>
+            <AdminContent />
           </ProtectedRoute>
         }
       />
