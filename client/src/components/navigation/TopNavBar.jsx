@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getUserRoleDisplayName, isAdminUser, getDefaultRouteForUser } from '../../utils/navigation';
 import { Home, BookOpen, User } from 'lucide-react';
+import logo from '../../assets/logo.jpg';
 
 const TopNavBar = ({ title, subtitle, actions = [] }) => {
   const { user, logout } = useAuth();
@@ -83,13 +84,10 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
               <div className="flex items-center justify-between p-6 border-b border-violet-100 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500">
                 <Link
                   to="/dashboard"
-                  className="flex items-center space-x-3 group"
+                  className="flex items-center group"
                   onClick={() => setShowMobileSidebar(false)}
                 >
-                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                    <span className="text-white text-lg font-bold">Om</span>
-                  </div>
-                  <span className="text-xl font-bold text-white">Omazing</span>
+                  <img src={logo} alt="Omazing Logo" className="h-16 w-auto object-contain group-hover:scale-105 transition-transform" />
                 </Link>
                 <button
                   onClick={() => setShowMobileSidebar(false)}
@@ -223,29 +221,22 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
 
               <Link
                 to={isAdminPage ? "/admin" : "/dashboard"}
-                className="flex items-center space-x-3 group"
+                className="flex items-center group"
               >
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform ${
-                  isAdminPage
-                    ? 'bg-gradient-to-br from-red-500 to-red-600'
-                    : 'bg-gradient-to-br from-violet-500 via-purple-500 to-violet-600 shadow-violet-500/30'
-                }`}>
-                  <span className="text-white text-lg font-bold">
-                    {isAdminPage ? 'A' : 'Om'}
-                  </span>
-                </div>
-                <div className="hidden sm:block">
-                  <span className={`text-2xl font-bold ${
-                    isAdminPage
-                      ? 'bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent'
-                      : 'bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent'
-                  }`}>
-                    {isAdminPage ? 'Admin Panel' : 'Omazing'}
-                  </span>
-                  {!isAdminPage && (
-                    <p className="text-xs text-gray-500">Find your inner peace</p>
-                  )}
-                </div>
+                {isAdminPage ? (
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform bg-gradient-to-br from-red-500 to-red-600">
+                      <span className="text-white text-lg font-bold">A</span>
+                    </div>
+                    <div className="hidden sm:block">
+                      <span className="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent">
+                        Admin Panel
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <img src={logo} alt="Omazing Logo" className="h-12 sm:h-16 w-auto object-contain group-hover:scale-105 transition-transform" />
+                )}
               </Link>
 
               {title && (
