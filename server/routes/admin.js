@@ -13,6 +13,9 @@ const adminCourseController = require('../controllers/adminCourseController');
 // Import video carousel controller
 const videoCarouselController = require('../controllers/videoCarouselController');
 
+// Import quote controller
+const quoteController = require('../controllers/quoteController');
+
 router.get("/dashboard", authMiddleware, roleMiddleware(["admin"]), async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -516,6 +519,20 @@ router.post("/videos", authMiddleware, roleMiddleware(["admin"]), videoCarouselC
 router.put("/videos/:id", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.updateVideo);
 router.delete("/videos/:id", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.deleteVideo);
 router.put("/videos/:id/toggle", authMiddleware, roleMiddleware(["admin"]), videoCarouselController.toggleVideoStatus);
+
+// Quote Management Routes
+// Note: Static routes (stats, seed) must come before parameterized routes (:id)
+router.get("/quotes", authMiddleware, roleMiddleware(["admin"]), quoteController.getAllQuotes);
+router.get("/quotes/stats", authMiddleware, roleMiddleware(["admin"]), quoteController.getQuoteStats);
+router.post("/quotes/seed", authMiddleware, roleMiddleware(["admin"]), quoteController.seedPredefinedQuotes);
+router.post("/quotes", authMiddleware, roleMiddleware(["admin"]), [
+  body('text').notEmpty().withMessage('Quote text is required').isLength({ min: 10, max: 500 }).withMessage('Quote text must be between 10 and 500 characters'),
+  body('author').notEmpty().withMessage('Author is required').isLength({ max: 100 }).withMessage('Author name must not exceed 100 characters'),
+], quoteController.createQuote);
+router.get("/quotes/:id", authMiddleware, roleMiddleware(["admin"]), quoteController.getQuoteById);
+router.put("/quotes/:id", authMiddleware, roleMiddleware(["admin"]), quoteController.updateQuote);
+router.delete("/quotes/:id", authMiddleware, roleMiddleware(["admin"]), quoteController.deleteQuote);
+router.put("/quotes/:id/toggle", authMiddleware, roleMiddleware(["admin"]), quoteController.toggleQuoteStatus);
 
 // Note: Content management routes are handled by /api/v1/content routes
 // This keeps admin routes focused on user management and dashboard analytics

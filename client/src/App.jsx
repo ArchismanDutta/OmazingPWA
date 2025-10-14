@@ -21,6 +21,7 @@ import AdminCourseEdit from './pages/admin/AdminCourseEdit';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminVideos from './pages/admin/AdminVideos';
 import AdminContent from './pages/admin/AdminContent';
+import AdminQuotes from './pages/admin/AdminQuotes';
 import ContentLibrary from './pages/ContentLibrary';
 import ContentDetail from './pages/ContentDetail';
 import MediaPlayerDebug from './components/media/MediaPlayerDebug';
@@ -195,6 +196,14 @@ function AppContent() {
         element={
           <ProtectedRoute adminOnly>
             <AdminContent />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/quotes"
+        element={
+          <ProtectedRoute adminOnly>
+            <AdminQuotes />
           </ProtectedRoute>
         }
       />
