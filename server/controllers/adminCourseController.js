@@ -2,6 +2,7 @@ const Course = require('../models/Course');
 const CourseEnrollment = require('../models/CourseEnrollment');
 const { validationResult } = require('express-validator');
 const { getCourseCategories } = require('./courseController');
+const { getContentUrl, isS3Enabled } = require('../services/uploadService');
 
 // Get all courses (admin view)
 const getAllCoursesAdmin = async (req, res) => {
@@ -45,9 +46,32 @@ const getAllCoursesAdmin = async (req, res) => {
 
     const total = await Course.countDocuments(filters);
 
+    // Process courses to use CloudFront URLs for thumbnails
+    const processedCourses = courses.map(course => {
+      const courseObj = course.toObject();
+
+      // Convert thumbnail to CloudFront URL if using S3
+      if (courseObj.thumbnail && courseObj.thumbnail.includes('amazonaws.com')) {
+        // Extract S3 key from URL
+        const urlParts = courseObj.thumbnail.split('.amazonaws.com/');
+        if (urlParts.length > 1) {
+          const s3Key = urlParts[1];
+          courseObj.thumbnail = getContentUrl(s3Key, false); // Public content, no signed URL
+        }
+      } else if (courseObj.thumbnail && isS3Enabled() && !courseObj.thumbnail.startsWith('http')) {
+        // If it's just an S3 key without full URL
+        const cloudFrontUrl = getContentUrl(courseObj.thumbnail, false);
+        if (cloudFrontUrl) {
+          courseObj.thumbnail = cloudFrontUrl;
+        }
+      }
+
+      return courseObj;
+    });
+
     res.json({
       success: true,
-      data: courses,
+      data: processedCourses,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(total / parseInt(limit)),
@@ -93,10 +117,86 @@ const getCourseByIdAdmin = async (req, res) => {
       }
     ]);
 
+    // Process course to use CloudFront URL for thumbnail
+    const courseObj = course.toObject();
+
+    // Process thumbnail URL
+    if (courseObj.thumbnail && courseObj.thumbnail.includes('amazonaws.com')) {
+      const urlParts = courseObj.thumbnail.split('.amazonaws.com/');
+      if (urlParts.length > 1) {
+        const s3Key = urlParts[1];
+        courseObj.thumbnail = getContentUrl(s3Key, false);
+      }
+    } else if (courseObj.thumbnail && isS3Enabled() && !courseObj.thumbnail.startsWith('http')) {
+      const cloudFrontUrl = getContentUrl(courseObj.thumbnail, false);
+      if (cloudFrontUrl) {
+        courseObj.thumbnail = cloudFrontUrl;
+      }
+    }
+
+    // Process instructor image if present
+    if (courseObj.instructor?.image) {
+      if (courseObj.instructor.image.includes('amazonaws.com')) {
+        const urlParts = courseObj.instructor.image.split('.amazonaws.com/');
+        if (urlParts.length > 1) {
+          const s3Key = urlParts[1];
+          courseObj.instructor.image = getContentUrl(s3Key, false);
+        }
+      } else if (isS3Enabled() && !courseObj.instructor.image.startsWith('http')) {
+        const cloudFrontUrl = getContentUrl(courseObj.instructor.image, false);
+        if (cloudFrontUrl) {
+          courseObj.instructor.image = cloudFrontUrl;
+        }
+      }
+    }
+
+    // Process lesson content URLs
+    if (courseObj.modules) {
+      courseObj.modules.forEach(module => {
+        if (module.lessons) {
+          module.lessons.forEach(lesson => {
+            if (lesson.content?.url) {
+              if (lesson.content.url.includes('amazonaws.com')) {
+                const urlParts = lesson.content.url.split('.amazonaws.com/');
+                if (urlParts.length > 1) {
+                  const s3Key = urlParts[1];
+                  lesson.content.url = getContentUrl(s3Key, false);
+                }
+              } else if (isS3Enabled() && !lesson.content.url.startsWith('http')) {
+                const cloudFrontUrl = getContentUrl(lesson.content.url, false);
+                if (cloudFrontUrl) {
+                  lesson.content.url = cloudFrontUrl;
+                }
+              }
+            }
+            // Process lesson resources
+            if (lesson.resources) {
+              lesson.resources.forEach(resource => {
+                if (resource.url) {
+                  if (resource.url.includes('amazonaws.com')) {
+                    const urlParts = resource.url.split('.amazonaws.com/');
+                    if (urlParts.length > 1) {
+                      const s3Key = urlParts[1];
+                      resource.url = getContentUrl(s3Key, false);
+                    }
+                  } else if (isS3Enabled() && !resource.url.startsWith('http')) {
+                    const cloudFrontUrl = getContentUrl(resource.url, false);
+                    if (cloudFrontUrl) {
+                      resource.url = cloudFrontUrl;
+                    }
+                  }
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+
     res.json({
       success: true,
       data: {
-        ...course.toObject(),
+        ...courseObj,
         enrollmentStats
       }
     });
