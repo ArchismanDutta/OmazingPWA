@@ -203,7 +203,7 @@ const AudioPlayer = ({
         playsInline
       />
 
-      {/* Debug Info (remove in production) */}
+      {/* Debug Info (remove in production)
       {process.env.NODE_ENV === 'development' && (
         <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
           <div>Source: {src || 'No source'}</div>
@@ -212,7 +212,7 @@ const AudioPlayer = ({
           <div>Duration: {duration || 'Unknown'}</div>
           <div>Loading: {isLoading ? 'Yes' : 'No'}</div>
         </div>
-      )}
+      )} */}
 
       {/* Loading Indicator */}
       {isLoading && (

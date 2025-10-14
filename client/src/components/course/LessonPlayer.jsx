@@ -34,11 +34,11 @@ const LessonPlayer = ({ lesson, course, onClose, onComplete }) => {
         return (
           <div>
             {/* Debug info for development */}
-            {import.meta.env.DEV && (
+            {/* {import.meta.env.DEV && (
               <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg text-blue-300 text-sm">
                 <strong>Debug Info:</strong> Video URL: {mediaUrl}
               </div>
-            )}
+            )} */}
             <VideoPlayer
               src={mediaUrl}
               title={lesson.title}
@@ -54,11 +54,11 @@ const LessonPlayer = ({ lesson, course, onClose, onComplete }) => {
         return (
           <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-xl p-6 border border-white/10">
             {/* Debug info for development */}
-            {import.meta.env.DEV && (
+            {/* {import.meta.env.DEV && (
               <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg text-purple-300 text-sm">
                 <strong>Debug Info:</strong> Audio URL: {mediaUrl}
               </div>
-            )}
+            )} */}
             <AudioPlayer
               src={mediaUrl}
               title={lesson.title}

@@ -124,11 +124,11 @@ const LessonView = () => {
       case 'video':
         return (
           <div className="bg-white rounded-2xl overflow-hidden border border-violet-100 shadow-lg">
-            {import.meta.env.DEV && (
+            {/* {import.meta.env.DEV && (
               <div className="m-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-sm">
                 <strong>Debug Info:</strong> Video URL: {mediaUrl}
               </div>
-            )}
+            )} */}
             <VideoPlayer
               src={mediaUrl}
               title={lesson.title}
@@ -143,11 +143,11 @@ const LessonView = () => {
       case 'audio':
         return (
           <div className="bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 rounded-2xl p-6 sm:p-8 border border-violet-200 shadow-lg">
-            {import.meta.env.DEV && (
+            {/* {import.meta.env.DEV && (
               <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-xl text-purple-700 text-sm">
                 <strong>Debug Info:</strong> Audio URL: {mediaUrl}
               </div>
-            )}
+            )} */}
             <AudioPlayer
               src={mediaUrl}
               title={lesson.title}
