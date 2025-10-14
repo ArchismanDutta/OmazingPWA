@@ -113,9 +113,9 @@ const AdminUsers = () => {
             >
               📊 Export CSV
             </button>
-            <button className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-sm sm:text-base">
+            {/* <button className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium text-sm sm:text-base">
               👤 Add User
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -363,7 +363,7 @@ const UserEditModal = ({ user, onSave, onClose }) => {
     email: user.email,
     role: user.role,
     subscriptionType: user.subscription?.type || 'free',
-    isEmailVerified: user.isEmailVerified || false
+    isEmailVerified: user.isEmailVerified || false,
   });
 
   const handleSubmit = (e) => {
@@ -372,46 +372,45 @@ const UserEditModal = ({ user, onSave, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-60 backdrop-blur-sm">
       <div className="flex items-center justify-center min-h-screen px-4">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={onClose}></div>
-        <div className="relative bg-white rounded-lg max-w-md w-full mx-4 p-4 sm:p-6">
+        <div className="relative z-10 bg-gray-900 text-white rounded-lg max-w-md w-full mx-4 p-4 sm:p-6 shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Edit User</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button onClick={onClose} className="text-gray-400 hover:text-white">
               ✕
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-gray-800 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-gray-800 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Role</label>
               <select
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-gray-800 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="user">User</option>
                 <option value="manager">Manager</option>
@@ -420,11 +419,11 @@ const UserEditModal = ({ user, onSave, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Subscription</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Subscription</label>
               <select
                 value={formData.subscriptionType}
                 onChange={(e) => setFormData({ ...formData, subscriptionType: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-gray-800 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="free">Free</option>
                 <option value="premium">Premium</option>
@@ -438,9 +437,9 @@ const UserEditModal = ({ user, onSave, onClose }) => {
                 id="emailVerified"
                 checked={formData.isEmailVerified}
                 onChange={(e) => setFormData({ ...formData, isEmailVerified: e.target.checked })}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500"
               />
-              <label htmlFor="emailVerified" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="emailVerified" className="ml-2 block text-sm text-gray-300">
                 Email Verified
               </label>
             </div>
@@ -455,7 +454,7 @@ const UserEditModal = ({ user, onSave, onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                className="flex-1 bg-gray-700 text-gray-200 py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
               >
                 Cancel
               </button>
@@ -466,5 +465,6 @@ const UserEditModal = ({ user, onSave, onClose }) => {
     </div>
   );
 };
+
 
 export default AdminUsers;

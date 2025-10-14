@@ -7,6 +7,7 @@ import AdminLayout from '../../components/admin/AdminLayout';
 const AdminCourses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [imageErrors, setImageErrors] = useState({});
   const [filters, setFilters] = useState({
     status: '',
     category: '',
@@ -71,6 +72,10 @@ const AdminCourses = () => {
         console.error('Failed to delete course:', error);
       }
     }
+  };
+
+  const handleImageError = (courseId) => {
+    setImageErrors(prev => ({ ...prev, [courseId]: true }));
   };
 
   if (loading) {
@@ -186,11 +191,20 @@ const AdminCourses = () => {
         {courses.map((course) => (
           <div key={course._id} className="bg-slate-800/50 backdrop-blur-xl rounded-xl overflow-hidden border border-red-500/20 hover:border-red-500/40 transition-all">
             <div className="relative">
-              <img
-                src={course.thumbnail}
-                alt={course.title}
-                className="w-full h-48 object-cover"
-              />
+              {course.thumbnail && !imageErrors[course._id] ? (
+                <img
+                  src={course.thumbnail}
+                  alt={course.title}
+                  className="w-full h-48 object-cover"
+                  onError={() => handleImageError(course._id)}
+                />
+              ) : (
+                <div className="w-full h-48 bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                  <span className="text-6xl font-bold text-white">
+                    {course.title.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
               <div className="absolute top-2 right-2">
                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${courseHelpers.getStatusBadgeColor(course.status)}`}>
                   {course.status}
