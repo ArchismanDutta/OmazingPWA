@@ -7,6 +7,7 @@ import TopNavBar from '../components/navigation/TopNavBar';
 import MeditationTimer from '../components/MeditationTimer';
 import { contentAPI } from '../api/content';
 import { coursesAPI } from '../api/courses';
+import { quotesAPI } from '../api/quotes';
 import med1Image from '../assets/med1.png';
 
 const dailyQuotes = [
@@ -244,7 +245,22 @@ const Dashboard = () => {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    setDailyQuote(dailyQuotes[Math.floor(Math.random() * dailyQuotes.length)]);
+    const fetchDailyQuote = async () => {
+      try {
+        const response = await quotesAPI.getDailyQuote();
+        if (response.success && response.data) {
+          setDailyQuote(response.data);
+        } else {
+          // Fallback to hardcoded quotes
+          setDailyQuote(dailyQuotes[Math.floor(Math.random() * dailyQuotes.length)]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch daily quote:', error);
+        // Fallback to hardcoded quotes
+        setDailyQuote(dailyQuotes[Math.floor(Math.random() * dailyQuotes.length)]);
+      }
+    };
+    fetchDailyQuote();
   }, []);
 
   useEffect(() => {
