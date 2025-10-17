@@ -39,7 +39,13 @@ const Breadcrumbs = ({ items, showBackButton = true, backTo = null }) => {
                     {item.label}
                   </Link>
                 ) : (
-                  <span className={index === items.length - 1 ? 'text-gray-900 font-medium' : 'text-gray-600'}>
+                  <span
+                    className={
+                      index === items.length - 1
+                        ? "text-gray-900 font-medium"
+                        : "text-gray-600"
+                    }
+                  >
                     {item.label}
                   </span>
                 )}

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import GoogleLoginButton from '../components/button/GoogleLoginButton';
 import { getDefaultRouteForUser } from '../utils/navigation';
+import natureVideo from '../assets/Nature.mp4';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -76,25 +78,163 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex relative overflow-hidden">
+      {/* Mobile Background Video */}
+      <div className="lg:hidden absolute inset-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={natureVideo} type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/50 via-purple-600/50 to-pink-600/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-transparent"></div>
+      </div>
+
       {/* Left Side - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-pink-600"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
-        
-        {/* Decorative circles */}
-        <div className="absolute top-20 left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl"></div>
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={natureVideo} type="video/mp4" />
+        </video>
+
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600/40 via-purple-600/40 to-pink-600/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/30 to-transparent"></div>
+
+        {/* Meditation background animation */}
+
+        {/* Breathing circle animation - main focal point */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 w-[500px] h-[500px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.15) 30%, rgba(255, 255, 255, 0.05) 60%, transparent 100%)',
+            transform: 'translate(-50%, -50%)',
+            filter: 'blur(60px)',
+          }}
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.4, 0.8, 0.4],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        {/* Secondary breathing circle */}
+        <motion.div
+          className="absolute top-1/2 left-1/2 w-[350px] h-[350px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.12) 40%, transparent 70%)',
+            transform: 'translate(-50%, -50%)',
+            filter: 'blur(50px)',
+          }}
+          animate={{
+            scale: [1.3, 1, 1.3],
+            opacity: [0.5, 0.9, 0.5],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        {/* Floating particles */}
+        {[...Array(25)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-3 h-3 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              background: 'rgba(255, 255, 255, 0.6)',
+              boxShadow: '0 0 15px rgba(255, 255, 255, 0.4)',
+            }}
+            animate={{
+              y: [0, -50, 0],
+              x: [0, Math.random() * 30 - 15, 0],
+              opacity: [0.3, 0.9, 0.3],
+              scale: [1, 2, 1],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+
+        {/* Rotating gradient orbs */}
+        <motion.div
+          className="absolute top-20 left-20 w-72 h-72 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 50%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -60, 0],
+            scale: [1, 1.4, 1],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <motion.div
+          className="absolute bottom-20 right-20 w-80 h-80 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 50%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+          animate={{
+            x: [0, -80, 0],
+            y: [0, 70, 0],
+            scale: [1, 1.5, 1],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <motion.div
+          className="absolute top-1/3 right-1/4 w-64 h-64 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 70%)',
+            filter: 'blur(55px)',
+          }}
+          animate={{
+            x: [0, -60, 0],
+            y: [0, 90, 0],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 11,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        />
         
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
           <div className="max-w-lg">
-            <div className="mb-8">
-              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-2xl mb-6">
-                <span className="text-4xl">🧘</span>
-              </div>
-            </div>
-            
             <h1 className="text-5xl font-bold mb-6 leading-tight">
               Welcome to Your Mindful Space
             </h1>
@@ -128,20 +268,13 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 relative z-10">
         <div className="w-full max-w-md space-y-8 animate-fade-in">
-          {/* Mobile Logo */}
-          <div className="text-center lg:hidden mb-8">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-xl mx-auto mb-4">
-              <span className="text-3xl">🧘</span>
-            </div>
-          </div>
-
           <div className="text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent mb-3">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-200 bg-clip-text mb-3">
               Welcome Back
             </h2>
-            <p className="text-gray-600 text-base sm:text-lg">
+            <p className="text-gray-300 sm:text-lg">
               Continue your mindfulness journey
             </p>
           </div>

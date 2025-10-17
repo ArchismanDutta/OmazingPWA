@@ -503,7 +503,7 @@ const Dashboard = () => {
         <WelcomeSection userName={user?.name} />
         <DailyQuote quote={dailyQuote} />
 
-        {recommendedContent.length > 0 && (
+        {/* {recommendedContent.length > 0 && (
           <section className="mb-10 sm:mb-12 md:mb-16">
             <SectionHeader
               title="Recommended for You"
@@ -526,7 +526,7 @@ const Dashboard = () => {
               ))}
             </motion.div>
           </section>
-        )}
+        )} */}
 
         {categories.length > 0 && (
           <section className="mb-10 sm:mb-12 md:mb-16">

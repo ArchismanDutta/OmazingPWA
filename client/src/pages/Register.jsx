@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import GoogleLoginButton from '../components/button/GoogleLoginButton';
+import omazingLogo from '../assets/omazinglogo.png';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -84,15 +86,157 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-md space-y-8 animate-fade-in">
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-xl mx-auto mb-6">
-            <span className="text-white text-2xl font-bold">🧘</span>
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Meditation background animation */}
+
+      {/* Breathing circle animation - main focal point */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] lg:w-[900px] lg:h-[900px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(167, 139, 250, 0.6) 0%, rgba(196, 181, 253, 0.4) 30%, rgba(221, 214, 254, 0.25) 60%, transparent 100%)',
+          transform: 'translate(-50%, -50%)',
+          filter: 'blur(60px)',
+        }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.5, 1, 0.5],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      {/* Secondary breathing circle */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] lg:w-[650px] lg:h-[650px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, rgba(167, 139, 250, 0.35) 40%, transparent 70%)',
+          transform: 'translate(-50%, -50%)',
+          filter: 'blur(50px)',
+        }}
+        animate={{
+          scale: [1.3, 1, 1.3],
+          opacity: [0.6, 1, 0.6],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      {/* Floating particles */}
+      {[...Array(30)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            background: i % 3 === 0
+              ? 'rgba(167, 139, 250, 0.7)'
+              : i % 3 === 1
+              ? 'rgba(236, 72, 153, 0.7)'
+              : 'rgba(139, 92, 246, 0.7)',
+            boxShadow: '0 0 10px rgba(167, 139, 250, 0.5)',
+          }}
+          animate={{
+            y: [0, -50, 0],
+            x: [0, Math.random() * 30 - 15, 0],
+            opacity: [0.4, 1, 0.4],
+            scale: [1, 2, 1],
+          }}
+          transition={{
+            duration: 3 + Math.random() * 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: Math.random() * 2,
+          }}
+        />
+      ))}
+
+      {/* Rotating gradient orbs */}
+      <motion.div
+        className="absolute top-20 left-20 w-64 h-64 sm:w-80 sm:h-80 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(236, 72, 153, 0.6) 0%, rgba(236, 72, 153, 0.3) 50%, transparent 70%)',
+          filter: 'blur(60px)',
+        }}
+        animate={{
+          x: [0, 150, 0],
+          y: [0, -80, 0],
+          scale: [1, 1.4, 1],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <motion.div
+        className="absolute bottom-20 right-20 w-72 h-72 sm:w-96 sm:h-96 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.65) 0%, rgba(139, 92, 246, 0.35) 50%, transparent 70%)',
+          filter: 'blur(60px)',
+        }}
+        animate={{
+          x: [0, -100, 0],
+          y: [0, 80, 0],
+          scale: [1, 1.5, 1],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <motion.div
+        className="absolute top-1/3 right-1/4 w-60 h-60 sm:w-80 sm:h-80 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.55) 0%, rgba(168, 85, 247, 0.25) 50%, transparent 70%)',
+          filter: 'blur(55px)',
+        }}
+        animate={{
+          x: [0, -80, 0],
+          y: [0, 100, 0],
+          scale: [1, 1.3, 1],
+        }}
+        transition={{
+          duration: 11,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1,
+        }}
+      />
+
+      {/* Additional ambient light waves */}
+      <motion.div
+        className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(196, 181, 253, 0.5) 0%, transparent 60%)',
+          filter: 'blur(70px)',
+        }}
+        animate={{
+          scale: [1, 1.6, 1],
+          opacity: [0.3, 0.7, 0.3],
+          rotate: [0, 180, 360],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <div className="w-full max-w-md space-y-6 animate-fade-in relative z-10">
+        <div className="text-center flex flex-col items-center">
+          <div className="w-full max-w-md h-24 overflow-hidden flex items-center justify-center mb-2">
+            <img src={omazingLogo} alt="Omazing Logo" className="w-full h-auto object-cover scale-102" style={{ objectPosition: 'center' }} />
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent mb-3">
-            Join Omaazing
-          </h2>
           <p className="text-gray-600 text-lg">
             Start your mindfulness journey today
           </p>
