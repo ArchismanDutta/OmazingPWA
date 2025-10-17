@@ -1,6 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  ChevronRight,
+  Sunrise,
+  Sun,
+  Moon,
+  Sparkles,
+  Music,
+  Leaf,
+  Headphones,
+  Wind,
+  Activity,
+  Heart,
+  Target,
+  Star,
+  Video,
+  Image,
+  FileText,
+  BookOpen,
+  Clock,
+  Users,
+  TrendingUp,
+  Zap,
+  Film,
+  Flower2
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import VideoCarousel from '../components/VideoCarousel';
 import TopNavBar from '../components/navigation/TopNavBar';
@@ -9,6 +34,45 @@ import { contentAPI } from '../api/content';
 import { coursesAPI } from '../api/courses';
 import { quotesAPI } from '../api/quotes';
 import med1Image from '../assets/med1.png';
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" }
+  }
+};
+
+const fadeInLeft = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.6, ease: "easeOut" }
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
 
 const dailyQuotes = [
   {
@@ -43,30 +107,57 @@ const formatCategoryName = (category) => {
 
 const WelcomeSection = ({ userName }) => {
   const currentHour = new Date().getHours();
-  const greeting =
-    currentHour < 12
-      ? '🌅 Good Morning'
-      : currentHour < 18
-        ? '☀️ Good Afternoon'
-        : '🌙 Good Evening';
+  const getGreeting = () => {
+    if (currentHour < 12) {
+      return { icon: Sunrise, text: 'Good Morning' };
+    } else if (currentHour < 18) {
+      return { icon: Sun, text: 'Good Afternoon' };
+    } else {
+      return { icon: Moon, text: 'Good Evening' };
+    }
+  };
+  const greeting = getGreeting();
+  const GreetingIcon = greeting.icon;
 
   return (
-    <div className="mb-8 sm:mb-10">
-      <div className="text-sm sm:text-base text-violet-600 font-semibold mb-2">{greeting}</div>
-      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent mb-2">
+    <motion.div
+      className="mb-8 sm:mb-10"
+      initial="hidden"
+      animate="visible"
+      variants={fadeInUp}
+    >
+      <motion.div
+        className="flex items-center space-x-2 text-sm sm:text-base text-violet-600 font-semibold mb-2"
+        variants={fadeInLeft}
+      >
+        <GreetingIcon size={18} strokeWidth={2.5} />
+        <span>{greeting.text}</span>
+      </motion.div>
+      <motion.h1
+        className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent mb-2"
+        variants={fadeInUp}
+      >
         Welcome back, {userName ? userName.split(' ')[0] : 'Friend'}
-      </h1>
-      <p className="text-base sm:text-lg text-gray-600">
+      </motion.h1>
+      <motion.p
+        className="text-base sm:text-lg text-gray-600"
+        variants={fadeInUp}
+      >
         Your journey to mindfulness continues
-      </p>
-    </div>
+      </motion.p>
+    </motion.div>
   );
 };
 
 const DailyQuote = ({ quote }) => (
-  <div className="relative group mb-8 sm:mb-10">
+  <motion.div
+    className="relative group mb-8 sm:mb-10"
+    initial="hidden"
+    animate="visible"
+    variants={fadeInUp}
+  >
     <div className="absolute inset-0 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 rounded-3xl blur-xl opacity-30 group-hover:opacity-40 transition-opacity"></div>
-    <div className="relative bg-gradient-to-br from-violet-50 via-white to-purple-50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 border border-violet-100 overflow-hidden">
+    <div className="relative bg-white/40 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 border border-white/60 shadow-xl overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-gradient-to-br from-violet-200/30 to-purple-200/30 rounded-full -mr-16 sm:-mr-24 -mt-16 sm:-mt-24"></div>
       <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-tr from-pink-200/30 to-violet-200/30 rounded-full -ml-12 sm:-ml-16 -mb-12 sm:-mb-16"></div>
       <div className="relative flex items-start space-x-6">
@@ -97,51 +188,58 @@ const DailyQuote = ({ quote }) => (
         </div>
       </div>
     </div>
-  </div>
+  </motion.div>
 );
 
 const CategoryCard = ({ category, onClick }) => {
-  const categoryEmojis = {
-    meditation: '🧘',
-    music: '🎵',
-    nature_sounds: '🌿',
-    guided_meditation: '🎧',
-    breathing_exercises: '💨',
-    yoga: '🤸',
-    mindfulness: '✨',
-    stress_relief: '😌',
-    sleep: '😴',
-    focus: '🎯',
-    inspiration: '💫'
+  const categoryIcons = {
+    meditation: Activity,
+    music: Music,
+    nature_sounds: Leaf,
+    guided_meditation: Headphones,
+    breathing_exercises: Wind,
+    yoga: Activity,
+    mindfulness: Sparkles,
+    stress_relief: Heart,
+    sleep: Moon,
+    focus: Target,
+    inspiration: Star
   };
 
+  const IconComponent = categoryIcons[category.id] || Flower2;
+
   return (
-    <div
+    <motion.div
       onClick={onClick}
-      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 cursor-pointer hover:-translate-y-1"
+      className="group bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-2xl border border-white/80 p-5 sm:p-6 transition-all duration-300 cursor-pointer hover:-translate-y-1"
+      variants={staggerItem}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.98 }}
     >
       <div className="flex flex-col items-center text-center space-y-3">
-        <div className="text-4xl sm:text-5xl transform group-hover:scale-110 transition-transform">
-          {categoryEmojis[category.id] || '🌸'}
+        <div className="p-3 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 transform group-hover:scale-110 transition-transform">
+          <IconComponent size={32} className="text-violet-600" strokeWidth={2} />
         </div>
         <div>
           <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">{category.name}</h3>
           <p className="text-sm text-gray-500">{category.count} items</p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 const ContentCard = ({ content, onClick }) => {
   const getContentIcon = (type) => {
     switch (type) {
-      case 'audio': return '🎵';
-      case 'video': return '🎥';
-      case 'image': return '🖼️';
-      default: return '📄';
+      case 'audio': return Music;
+      case 'video': return Video;
+      case 'image': return Image;
+      default: return FileText;
     }
   };
+
+  const ContentIcon = getContentIcon(content.type);
 
   const formatDuration = (seconds) => {
     if (!seconds) return null;
@@ -151,9 +249,12 @@ const ContentCard = ({ content, onClick }) => {
   };
 
   return (
-    <div
+    <motion.div
       onClick={onClick}
-      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-1"
+      className="group bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-2xl border border-white/80 overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-1"
+      variants={staggerItem}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
     >
       <div className="flex items-center p-4 sm:p-5 space-x-4">
         <div className="flex-shrink-0">
@@ -167,12 +268,12 @@ const ContentCard = ({ content, onClick }) => {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
-                  <span className="text-3xl">{getContentIcon(content.type)}</span>
+                  <ContentIcon size={28} className="text-white" strokeWidth={2} />
                 </div>
               </div>
             ) : (
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-50 border-2 border-violet-100">
-                <span className="text-3xl sm:text-4xl">{getContentIcon(content.type)}</span>
+                <ContentIcon size={36} className="text-violet-600" strokeWidth={2} />
               </div>
             )}
           </div>
@@ -189,13 +290,15 @@ const ContentCard = ({ content, onClick }) => {
               </span>
             )}
             {content.courseTitle && (
-              <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
-                📚 {content.courseTitle}
+              <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full flex items-center space-x-1">
+                <BookOpen size={12} strokeWidth={2.5} />
+                <span>{content.courseTitle}</span>
               </span>
             )}
             {content.duration && (
-              <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">
-                ⏱️ {formatDuration(content.duration)}
+              <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full flex items-center space-x-1">
+                <Clock size={12} strokeWidth={2.5} />
+                <span>{formatDuration(content.duration)}</span>
               </span>
             )}
             {content.isFree && (
@@ -211,14 +314,20 @@ const ContentCard = ({ content, onClick }) => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
-const SectionHeader = ({ title, onSeeAll, icon }) => (
-  <div className="flex items-center justify-between mb-6 sm:mb-7">
+const SectionHeader = ({ title, onSeeAll, icon: IconComponent }) => (
+  <motion.div
+    className="flex items-center justify-between mb-6 sm:mb-7"
+    initial={{ opacity: 0, x: -20 }}
+    whileInView={{ opacity: 1, x: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5 }}
+  >
     <div className="flex items-center space-x-3">
-      {icon && <span className="text-2xl">{icon}</span>}
+      {IconComponent && <IconComponent size={28} className="text-violet-600" strokeWidth={2} />}
       <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
     </div>
     {onSeeAll && (
@@ -230,7 +339,7 @@ const SectionHeader = ({ title, onSeeAll, icon }) => (
         <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
       </button>
     )}
-  </div>
+  </motion.div>
 );
 
 const Dashboard = () => {
@@ -398,10 +507,16 @@ const Dashboard = () => {
           <section className="mb-10 sm:mb-12 md:mb-16">
             <SectionHeader
               title="Recommended for You"
-              icon="✨"
+              icon={Sparkles}
               onSeeAll={() => navigate('/content')}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+            >
               {recommendedContent.map((content, index) => (
                 <ContentCard
                   key={content._id || index}
@@ -409,7 +524,7 @@ const Dashboard = () => {
                   onClick={() => handleContentClick(content)}
                 />
               ))}
-            </div>
+            </motion.div>
           </section>
         )}
 
@@ -417,10 +532,16 @@ const Dashboard = () => {
           <section className="mb-10 sm:mb-12 md:mb-16">
             <SectionHeader
               title="Browse by Category"
-              icon="🌸"
+              icon={Flower2}
               onSeeAll={() => navigate('/content')}
             />
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+            >
               {categories.map((category, index) => (
                 <CategoryCard
                   key={category.id || index}
@@ -428,12 +549,12 @@ const Dashboard = () => {
                   onClick={() => handleCategoryClick(category)}
                 />
               ))}
-            </div>
+            </motion.div>
           </section>
         )}
 
         <section className="mb-10 sm:mb-12 md:mb-16">
-          <SectionHeader title="Featured Videos" icon="🎬" />
+          <SectionHeader title="Featured Videos" icon={Film} />
           <VideoCarousel />
         </section>
 
@@ -441,17 +562,26 @@ const Dashboard = () => {
           <section className="mb-10 sm:mb-12 md:mb-16">
             <SectionHeader
               title="Mindful Courses"
-              icon="🧘"
+              icon={Activity}
               onSeeAll={() => navigate('/courses')}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            <motion.div
+              className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+            >
               {courses.map(course => (
-                <div
+                <motion.div
                   key={course._id}
                   onClick={() => handleCourseClick(course)}
-                  className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl border border-violet-100 overflow-hidden transition-all duration-300 cursor-pointer hover:-translate-y-2"
+                  className="group bg-white/70 backdrop-blur-lg rounded-xl lg:rounded-2xl shadow-lg hover:shadow-2xl border border-white/80 overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-full"
+                  variants={staggerItem}
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-violet-100 to-purple-100">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-violet-100 to-purple-100">
                     <img
                       src={
                         course.thumbnail ||
@@ -460,35 +590,43 @@ const Dashboard = () => {
                       alt={course.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  </div>
-                  <div className="p-5 sm:p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <span className="text-xs font-bold text-violet-600 bg-violet-50 px-3 py-1.5 rounded-full uppercase tracking-wide">
-                        {formatCategoryName(course.category)}
-                      </span>
-                      <span className="text-lg font-bold text-gray-900">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                    <div className="absolute top-2 right-2 lg:top-3 lg:right-3">
+                      <span className="text-xs lg:text-sm font-bold px-2.5 py-1 lg:px-3 lg:py-1.5 rounded-full backdrop-blur-md bg-white/90 shadow-lg">
                         {course.pricing?.type === 'free' ? (
                           <span className="text-green-600">Free</span>
                         ) : (
-                          `$${course.pricing?.amount || 0}`
+                          <span className="text-gray-900">${course.pricing?.amount || 0}</span>
                         )}
                       </span>
                     </div>
-                    <h3 className="font-bold text-gray-900 text-lg sm:text-xl mb-2 group-hover:text-violet-600 transition-colors line-clamp-2">
+                  </div>
+                  <div className="p-3 lg:p-4 flex flex-col flex-grow">
+                    <div className="mb-2">
+                      <span className="inline-block text-[10px] lg:text-xs font-semibold text-violet-600 bg-violet-50 px-2 py-0.5 lg:px-2.5 lg:py-1 rounded-md uppercase tracking-wide">
+                        {formatCategoryName(course.category)}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-sm lg:text-base mb-1.5 lg:mb-2 group-hover:text-violet-600 transition-colors line-clamp-2 leading-snug min-h-[2.5rem] lg:min-h-[3rem]">
                       {course.title}
                     </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                    <p className="text-xs lg:text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed min-h-[2rem] lg:min-h-[2.5rem]">
                       {course.description || course.shortDescription}
                     </p>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span>⭐ {course.metrics?.rating?.average?.toFixed(1) || '0.0'}</span>
-                      <span>👥 {course.metrics?.enrollmentCount || 0} enrolled</span>
+                    <div className="flex items-center justify-between pt-2 lg:pt-3 border-t border-gray-100 mt-auto">
+                      <div className="flex items-center space-x-1">
+                        <Star size={12} className="text-amber-500 lg:w-3.5 lg:h-3.5" fill="currentColor" strokeWidth={2} />
+                        <span className="text-xs lg:text-sm font-semibold text-gray-700">{course.metrics?.rating?.average?.toFixed(1) || '0.0'}</span>
+                      </div>
+                      <div className="flex items-center space-x-1 text-gray-500">
+                        <Users size={12} className="lg:w-3.5 lg:h-3.5" strokeWidth={2} />
+                        <span className="text-xs lg:text-sm font-medium">{course.metrics?.enrollmentCount || 0}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </section>
         )}
 
@@ -496,10 +634,16 @@ const Dashboard = () => {
           <section className="mb-10 sm:mb-12">
             <SectionHeader
               title="Trending Now"
-              icon="🔥"
+              icon={TrendingUp}
               onSeeAll={() => navigate('/content')}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+            >
               {trendingContent.map((content, index) => (
                 <ContentCard
                   key={content._id || index}
@@ -507,74 +651,96 @@ const Dashboard = () => {
                   onClick={() => handleContentClick(content)}
                 />
               ))}
-            </div>
+            </motion.div>
           </section>
         )}
 
         <section className="mb-10 sm:mb-12">
-          <SectionHeader title="Quick Access" icon="⚡" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            <Link
-              to="/content"
-              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="text-4xl">📚</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">
-                    Content Library
-                  </h3>
-                  <p className="text-sm text-gray-600">Explore all content</p>
+          <SectionHeader title="Quick Access" icon={Zap} />
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
+            <motion.div variants={staggerItem} className="h-full">
+              <Link
+                to="/content"
+                className="group bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-2xl border border-white/80 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 flex h-full"
+              >
+                <div className="flex items-center space-x-3 sm:space-x-4 w-full">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 flex-shrink-0">
+                    <BookOpen size={24} className="text-violet-600" strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors line-clamp-1">
+                      Content Library
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-1">Explore all content</p>
+                  </div>
+                  <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all flex-shrink-0" size={20} />
                 </div>
-                <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" size={20} />
-              </div>
-            </Link>
-            <Link
-              to="/content?type=audio&category=music"
-              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="text-4xl">🎵</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">
-                    Meditation Music
-                  </h3>
-                  <p className="text-sm text-gray-600">Calming tracks</p>
+              </Link>
+            </motion.div>
+            <motion.div variants={staggerItem} className="h-full">
+              <Link
+                to="/content?type=audio&category=music"
+                className="group bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-2xl border border-white/80 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 flex h-full"
+              >
+                <div className="flex items-center space-x-3 sm:space-x-4 w-full">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 flex-shrink-0">
+                    <Music size={24} className="text-violet-600" strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors line-clamp-1">
+                      Meditation Music
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-1">Calming tracks</p>
+                  </div>
+                  <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all flex-shrink-0" size={20} />
                 </div>
-                <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" size={20} />
-              </div>
-            </Link>
-            <Link
-              to="/favorites"
-              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="text-4xl">❤️</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">
-                    Favorites
-                  </h3>
-                  <p className="text-sm text-gray-600">{user?.activities?.favoriteContent?.length || 0} saved</p>
+              </Link>
+            </motion.div>
+            <motion.div variants={staggerItem} className="h-full">
+              <Link
+                to="/favorites"
+                className="group bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-2xl border border-white/80 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 flex h-full"
+              >
+                <div className="flex items-center space-x-3 sm:space-x-4 w-full">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 flex-shrink-0">
+                    <Heart size={24} className="text-violet-600" strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors line-clamp-1">
+                      Favorites
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-1">{user?.activities?.favoriteContent?.length || 0} saved</p>
+                  </div>
+                  <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all flex-shrink-0" size={20} />
                 </div>
-                <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" size={20} />
-              </div>
-            </Link>
-            <Link
-              to="/recently-played"
-              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-violet-100 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="text-4xl">⏱️</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors">
-                    Recently Played
-                  </h3>
-                  <p className="text-sm text-gray-600">{user?.activities?.recentlyPlayed?.length || 0} items</p>
+              </Link>
+            </motion.div>
+            <motion.div variants={staggerItem} className="h-full">
+              <Link
+                to="/recently-played"
+                className="group bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-2xl border border-white/80 p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 flex h-full"
+              >
+                <div className="flex items-center space-x-3 sm:space-x-4 w-full">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 flex-shrink-0">
+                    <Clock size={24} className="text-violet-600" strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 group-hover:text-violet-600 transition-colors line-clamp-1">
+                      Recently Played
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-1">{user?.activities?.recentlyPlayed?.length || 0} items</p>
+                  </div>
+                  <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all flex-shrink-0" size={20} />
                 </div>
-                <ChevronRight className="text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" size={20} />
-              </div>
-            </Link>
-          </div>
+              </Link>
+            </motion.div>
+          </motion.div>
         </section>
       </main>
     </div>
