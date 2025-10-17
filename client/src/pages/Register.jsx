@@ -234,7 +234,9 @@ const Register = () => {
 
       <div className="w-full max-w-md space-y-6 animate-fade-in relative z-10">
         <div className="text-center flex flex-col items-center">
-          <img src={omazingLogo} alt="Omazing Logo" className="h-40 object-contain -mb-4 -ml-12 mt-2" />
+          <div className="w-full max-w-md h-24 overflow-hidden flex items-center justify-center mb-2">
+            <img src={omazingLogo} alt="Omazing Logo" className="w-full h-auto object-cover scale-102" style={{ objectPosition: 'center' }} />
+          </div>
           <p className="text-gray-600 text-lg">
             Start your mindfulness journey today
           </p>

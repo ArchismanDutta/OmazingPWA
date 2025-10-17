@@ -78,17 +78,10 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
       {!isAdminPage && (
         <>
           {/* Mobile Sidebar */}
-          <div className={`fixed inset-y-0 left-0 z-50 w-80 bg-white backdrop-blur-xl border-r border-violet-200 shadow-2xl transform ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:hidden`}>
+          <div className={`fixed inset-y-0 left-0 z-[60] w-80 bg-white backdrop-blur-xl border-r border-violet-200 shadow-2xl transform ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:hidden`}>
             <div className="flex flex-col h-full">
               {/* Sidebar Header */}
-              <div className="flex items-center justify-between p-6 border-b border-violet-100 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500">
-                <Link
-                  to="/dashboard"
-                  className="flex items-center group"
-                  onClick={() => setShowMobileSidebar(false)}
-                >
-                  <img src={logo} alt="Omazing Logo" className="h-16 w-auto object-contain group-hover:scale-105 transition-transform" />
-                </Link>
+              <div className="flex items-center justify-end p-4 border-b border-violet-100 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500">
                 <button
                   onClick={() => setShowMobileSidebar(false)}
                   className="p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-all"
@@ -120,7 +113,7 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
               )}
 
               {/* Navigation Links */}
-              <nav className="flex-1 px-6 py-6 space-y-2 bg-white">
+              <nav className="flex-1 px-6 py-6 space-y-2 bg-white overflow-y-auto">
                 {navigationItems.map((item) => {
                   const isActive = currentPath === item.href;
                   return (
@@ -186,7 +179,7 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
           {/* Mobile Sidebar Overlay */}
           {showMobileSidebar && (
             <div
-              className="fixed inset-0 z-40 lg:hidden"
+              className="fixed inset-0 z-[55] lg:hidden"
               onClick={() => setShowMobileSidebar(false)}
             >
               <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
@@ -238,7 +231,9 @@ const TopNavBar = ({ title, subtitle, actions = [] }) => {
                     </div>
                   </div>
                 ) : (
-                  <img src={logo} alt="Omazing Logo" className="h-12 sm:h-16 w-auto object-contain group-hover:scale-105 transition-transform" />
+                  <div className="h-10 sm:h-12 w-36 sm:w-48 overflow-hidden flex items-center justify-center">
+                    <img src={logo} alt="Omazing Logo" className="w-full h-auto object-cover scale-105" style={{ objectPosition: 'center' }} />
+                  </div>
                 )}
               </Link>
 

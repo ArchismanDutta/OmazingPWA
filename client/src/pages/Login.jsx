@@ -271,10 +271,10 @@ const Login = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 relative z-10">
         <div className="w-full max-w-md space-y-8 animate-fade-in">
           <div className="text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-violet-900 to-purple-900 bg-clip-text text-transparent mb-3">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-200 bg-clip-text mb-3">
               Welcome Back
             </h2>
-            <p className="text-gray-600 text-base sm:text-lg">
+            <p className="text-gray-300 sm:text-lg">
               Continue your mindfulness journey
             </p>
           </div>
