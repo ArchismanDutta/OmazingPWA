@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Lottie from 'lottie-react';
+import Medi2 from '../assets/Medi2.jpg';
+import Medi3 from '../assets/Medi3.jpg';
+import Medi4 from '../assets/Medi4.jpg';
+import yogaAnimation from '../assets/Yoga Se Hi hoga.json';
+import monkAnimation from '../assets/Meditating Monk.json';
+import yogAnimation from '../assets/yoga meditation.json';
 
 const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -13,7 +21,8 @@ const Onboarding = () => {
       emoji: '🧘',
       gradient: 'from-violet-400 via-purple-400 to-pink-400',
       bgGradient: 'from-violet-50 to-purple-100',
-      features: ['Guided meditation sessions', 'Calming nature sounds', 'Breathing exercises']
+      features: ['Guided meditation sessions', 'Calming nature sounds', 'Breathing exercises'],
+      animation: yogaAnimation
     },
     {
       title: 'Learn & Grow at Your Pace',
@@ -21,7 +30,8 @@ const Onboarding = () => {
       emoji: '📚',
       gradient: 'from-blue-400 via-cyan-400 to-teal-400',
       bgGradient: 'from-blue-50 to-cyan-100',
-      features: ['Self-paced courses', 'Expert-led lessons', 'Flexible scheduling']
+      features: ['Self-paced courses', 'Expert-led lessons', 'Flexible scheduling'],
+      animation: monkAnimation
     },
     {
       title: 'Track Your Transformation',
@@ -29,7 +39,8 @@ const Onboarding = () => {
       emoji: '✨',
       gradient: 'from-pink-400 via-rose-400 to-red-400',
       bgGradient: 'from-pink-50 to-rose-100',
-      features: ['Progress tracking', 'Personalized favorites', 'Daily streaks']
+      features: ['Progress tracking', 'Personalized favorites', 'Daily streaks'],
+      animation: yogAnimation
     },
   ];
 
@@ -63,10 +74,150 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex flex-col justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-40 h-40 sm:w-64 sm:h-64 bg-violet-200/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-56 h-56 sm:w-96 sm:h-96 bg-purple-200/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-pink-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+      {/* Advanced meditation background animation */}
+
+      {/* Breathing circle animation - main focal point */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] lg:w-[900px] lg:h-[900px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(167, 139, 250, 0.6) 0%, rgba(196, 181, 253, 0.4) 30%, rgba(221, 214, 254, 0.25) 60%, transparent 100%)',
+          transform: 'translate(-50%, -50%)',
+          filter: 'blur(60px)',
+        }}
+        animate={{
+          scale: [1, 1.3, 1],
+          opacity: [0.5, 1, 0.5],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      {/* Secondary breathing circle */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] lg:w-[650px] lg:h-[650px] rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, rgba(167, 139, 250, 0.35) 40%, transparent 70%)',
+          transform: 'translate(-50%, -50%)',
+          filter: 'blur(50px)',
+        }}
+        animate={{
+          scale: [1.3, 1, 1.3],
+          opacity: [0.6, 1, 0.6],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      {/* Floating particles - more visible */}
+      {[...Array(30)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            background: i % 3 === 0
+              ? 'rgba(167, 139, 250, 0.7)'
+              : i % 3 === 1
+              ? 'rgba(236, 72, 153, 0.7)'
+              : 'rgba(139, 92, 246, 0.7)',
+            boxShadow: '0 0 10px rgba(167, 139, 250, 0.5)',
+          }}
+          animate={{
+            y: [0, -50, 0],
+            x: [0, Math.random() * 30 - 15, 0],
+            opacity: [0.4, 1, 0.4],
+            scale: [1, 2, 1],
+          }}
+          transition={{
+            duration: 3 + Math.random() * 4,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: Math.random() * 2,
+          }}
+        />
+      ))}
+
+      {/* Rotating gradient orbs - more prominent */}
+      <motion.div
+        className="absolute top-20 left-20 w-64 h-64 sm:w-80 sm:h-80 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(236, 72, 153, 0.6) 0%, rgba(236, 72, 153, 0.3) 50%, transparent 70%)',
+          filter: 'blur(60px)',
+        }}
+        animate={{
+          x: [0, 150, 0],
+          y: [0, -80, 0],
+          scale: [1, 1.4, 1],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <motion.div
+        className="absolute bottom-20 right-20 w-72 h-72 sm:w-96 sm:h-96 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.65) 0%, rgba(139, 92, 246, 0.35) 50%, transparent 70%)',
+          filter: 'blur(60px)',
+        }}
+        animate={{
+          x: [0, -100, 0],
+          y: [0, 80, 0],
+          scale: [1, 1.5, 1],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      <motion.div
+        className="absolute top-1/3 right-1/4 w-60 h-60 sm:w-80 sm:h-80 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.55) 0%, rgba(168, 85, 247, 0.25) 50%, transparent 70%)',
+          filter: 'blur(55px)',
+        }}
+        animate={{
+          x: [0, -80, 0],
+          y: [0, 100, 0],
+          scale: [1, 1.3, 1],
+        }}
+        transition={{
+          duration: 11,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1,
+        }}
+      />
+
+      {/* Additional ambient light waves */}
+      <motion.div
+        className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(196, 181, 253, 0.5) 0%, transparent 60%)',
+          filter: 'blur(70px)',
+        }}
+        animate={{
+          scale: [1, 1.6, 1],
+          opacity: [0.3, 0.7, 0.3],
+          rotate: [0, 180, 360],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
 
       <div className="w-full max-w-6xl mx-auto relative z-10 flex flex-col" style={{maxHeight: 'calc(100vh - 2rem)'}}>
         {/* Skip button */}
@@ -105,25 +256,28 @@ const Onboarding = () => {
               <div className="flex justify-center lg:justify-start order-2 lg:order-1">
                 <div className="relative w-full max-w-xs lg:max-w-sm">
                   <div className={`absolute inset-0 bg-gradient-to-br ${step.gradient} rounded-full blur-2xl opacity-40 animate-pulse`}></div>
-                  <div className={`relative w-full aspect-square max-w-[240px] sm:max-w-[280px] lg:max-w-[320px] mx-auto rounded-2xl sm:rounded-3xl bg-gradient-to-br ${step.bgGradient} flex flex-col items-center justify-center shadow-2xl transition-all duration-700 animate-scale-in px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8`}>
-                    <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 lg:mb-6 animate-bounce-slow">
-                      {step.emoji}
-                    </div>
-                    <div className="space-y-1.5 sm:space-y-2 lg:space-y-3 w-full">
-                      {step.features.map((feature, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-2 text-gray-700 animate-slide-in"
-                          style={{animationDelay: `${index * 0.2}s`}}
-                        >
-                          <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 flex-shrink-0 rounded-full bg-white/70 backdrop-blur-sm flex items-center justify-center shadow-md">
-                            <span className="text-[10px] sm:text-xs">✓</span>
-                          </div>
-                          <span className="text-[11px] sm:text-xs lg:text-sm font-medium line-clamp-1">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <motion.div
+                    key={currentStep}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.5 }}
+                    className={`relative w-full aspect-square max-w-[240px] sm:max-w-[280px] lg:max-w-[320px] mx-auto ${!step.animation && 'rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl'}`}
+                  >
+                    {step.animation ? (
+                      <Lottie
+                        animationData={step.animation}
+                        loop={true}
+                        className="w-full h-full"
+                      />
+                    ) : (
+                      <img
+                        src={step.image}
+                        alt="Meditation"
+                        className="w-full h-full object-cover rounded-2xl sm:rounded-3xl shadow-2xl"
+                      />
+                    )}
+                  </motion.div>
                 </div>
               </div>
 
@@ -200,10 +354,10 @@ const Onboarding = () => {
 
         {/* Mindful quote at bottom */}
         <div className="text-center mt-4 sm:mt-6 animate-fade-in px-4 flex-shrink-0">
-          <p className="text-gray-600 text-sm sm:text-base italic font-medium">
+          <p className="text-gray-800 text-sm sm:text-base italic font-medium">
             "The present moment is filled with joy and happiness. If you are attentive, you will see it."
           </p>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1.5">— Thích Nhất Hạnh</p>
+          <p className="text-gray-800 text-xs sm:text-sm mt-1.5">— Thích Nhất Hạnh</p>
         </div>
       </div>
 
